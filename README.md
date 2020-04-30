@@ -1,3 +1,3 @@
 # hvac
-Repository for havc odoo project
+Repository for havc odoo project.
 
