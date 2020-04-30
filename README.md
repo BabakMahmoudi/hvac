@@ -1,4 +1,4 @@
 # hvac
 Repository for havc odoo project.
 
-This will be used.....
+This repoistory has been created.
