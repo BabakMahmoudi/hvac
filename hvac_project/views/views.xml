@@ -1,7 +1,7 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-<!--
+
     <record model="ir.ui.view" id="hvac_project.list">
       <field name="name">hvac_project list</field>
       <field name="model">hvac_project.hvac_project</field>
@@ -13,19 +13,19 @@
         </tree>
       </field>
     </record>
--->
+
 
     <!-- actions opening views on models -->
-<!--
+
     <record model="ir.actions.act_window" id="hvac_project.action_window">
       <field name="name">hvac_project window</field>
       <field name="res_model">hvac_project.hvac_project</field>
       <field name="view_mode">tree,form</field>
     </record>
--->
+
 
     <!-- server action to the one above -->
-<!--
+
     <record model="ir.actions.server" id="hvac_project.action_server">
       <field name="name">hvac_project server</field>
       <field name="model_id" ref="model_hvac_project_hvac_project"/>
@@ -38,23 +38,23 @@
         }
       </field>
     </record>
--->
+
 
     <!-- Top menu item -->
-<!--
+
     <menuitem name="hvac_project" id="hvac_project.menu_root"/>
--->
+
     <!-- menu categories -->
-<!--
+
     <menuitem name="Menu 1" id="hvac_project.menu_1" parent="hvac_project.menu_root"/>
     <menuitem name="Menu 2" id="hvac_project.menu_2" parent="hvac_project.menu_root"/>
--->
+
     <!-- actions -->
-<!--
+
     <menuitem name="List" id="hvac_project.menu_1_list" parent="hvac_project.menu_1"
               action="hvac_project.action_window"/>
     <menuitem name="Server to list" id="hvac_project" parent="hvac_project.menu_2"
               action="hvac_project.action_server"/>
--->
+
   </data>
 </odoo>
