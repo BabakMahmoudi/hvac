@@ -1,7 +1,7 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-<!--
+
     <record model="ir.ui.view" id="sandbox.list">
       <field name="name">sandbox list</field>
       <field name="model">sandbox.sandbox</field>
@@ -13,19 +13,40 @@
         </tree>
       </field>
     </record>
--->
+
+    <!-- Form View -->
+    <record model="ir.ui.view" id="sandbox.form">
+      <field name="name">sandbox form</field>
+      <field name="model">sandbox.sandbox</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <!--The oe_highlight class gives the button a red color when it is saved.
+		It is usually used to indicate the expected behaviour. -->
+            <button string="Generate name" type="object" name="generate_record_name" class="oe_highlight"/>
+            <button string="Generate password" type="object" name="generate_record_password"/>
+            <button string="Clear data" type="object" name="clear_record_data"/>
+          </header>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+
+        </form>
+      </field>
+    </record>
+
 
     <!-- actions opening views on models -->
-<!--
+
     <record model="ir.actions.act_window" id="sandbox.action_window">
       <field name="name">sandbox window</field>
       <field name="res_model">sandbox.sandbox</field>
       <field name="view_mode">tree,form</field>
     </record>
--->
+
 
     <!-- server action to the one above -->
-<!--
+
     <record model="ir.actions.server" id="sandbox.action_server">
       <field name="name">sandbox server</field>
       <field name="model_id" ref="model_sandbox_sandbox"/>
@@ -38,23 +59,23 @@
         }
       </field>
     </record>
--->
+
+
+
 
     <!-- Top menu item -->
-<!--
+
     <menuitem name="sandbox" id="sandbox.menu_root"/>
--->
+
     <!-- menu categories -->
-<!--
+
     <menuitem name="Menu 1" id="sandbox.menu_1" parent="sandbox.menu_root"/>
     <menuitem name="Menu 2" id="sandbox.menu_2" parent="sandbox.menu_root"/>
--->
+
     <!-- actions -->
-<!--
-    <menuitem name="List" id="sandbox.menu_1_list" parent="sandbox.menu_1"
-              action="sandbox.action_window"/>
-    <menuitem name="Server to list" id="sandbox" parent="sandbox.menu_2"
-              action="sandbox.action_server"/>
--->
+
+    <menuitem name="List" id="sandbox.menu_1_list" parent="sandbox.menu_1" action="sandbox.action_window"/>
+    <menuitem name="Server to list" id="sandbox" parent="sandbox.menu_2" action="sandbox.action_server"/>
+
   </data>
 </odoo>
