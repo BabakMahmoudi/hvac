@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "hvac_project",
+    'name': "sandbox",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
@@ -32,6 +32,5 @@
     'demo': [
         'demo/demo.xml',
     ],
-    "application"          :  True,
-    "installable"          :  True,
+    'application':True
 }

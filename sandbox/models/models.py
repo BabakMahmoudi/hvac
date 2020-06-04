@@ -3,9 +3,9 @@
 from odoo import models, fields, api
 
 
-class hvac_project(models.Model):
-    _name = 'hvac_project.hvac_project'
-    _description = 'hvac_project.hvac_project'
+class sandbox(models.Model):
+    _name = 'sandbox.sandbox'
+    _description = 'sandbox.sandbox'
 
     name = fields.Char()
     value = fields.Integer()
@@ -16,3 +16,6 @@ class hvac_project(models.Model):
     def _value_pc(self):
         for record in self:
             record.value2 = float(record.value) / 100
+    def generate_record_name(self):
+        print("hi there")
+        
