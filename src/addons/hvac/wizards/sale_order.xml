@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="gn_sale_wizard" model="ir.ui.view">
+        <field name="name">sale_wizard_view</field>
+        <field name="model">hvac__wizard_sale</field>
+        <field name="arch" type="xml">
+            <form string="this is my first wizard!">
+                <group>
+                    <field name="main_product" string= "Main Product"/>
+                    <field name='new_product' string = "New Product"/>
+                    <field name='main_BOM' string= 'Main BOM'/>
+                    <field name = "new_BOM" string = 'new BOM'/>
+                </group>
+                <footer>
+                    <button name="create_product" string = "Create" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <record id ="sale_wizard" model = "ir.actions.act_window">
+        <field name="name">sale_wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hvac__wizard_sale</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref ="gn_sale_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
