@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record model="ir.ui.view" id="hvac_product_spec_view">
+      <field name="name">hvac_product_spec_view</field>
+      <field name="model">product.template</field>
+      <field name="inherit_id" ref="product.product_template_form_view"/>
+      <field name="arch" type="xml">
+        <xpath expr="//page[@name='general_information']" position="after">
+          <page string='Technical Specs'>
+            <group>
+              <group>
+                <field name='hvac_spec_type' string = 'Product Type'/>
+              </group>
+              <group/>
+            </group>
+            <group string="ENC" attrs="{'invisible': [('hvac_spec_type', '!=', 'value2')]}">
+              <group >
+                <field name='hvac_spec_enc_dimension_length' string = 'Length Dimension (OD)'/>
+                <field name='hvac_spec_enc_dimension_width' string = 'Width Dimension (OD)'/>
+                <field name='hvac_spec_enc_dimension_height' string = 'Height Dimension (OD)'/>
+                <field name='hvac_spec_enc_dimension_internal_height' string = 'Height Dimension (ID)'/>
+                <field name='hvac_spec_enc_dimension_internal_width' string = 'Width Dimension (ID)'/>
+              </group>
+              <group>
+                <field name='hvac_spec_enc_dimension_internal_length' string = 'Length Dimension (OD)'/>
+                <field name='hvac_spec_enc_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
+                <field name='havc_spec_enc_number_of_ligths' string = '# Of Lights '/>
+                <field name='hvac_spec_enc_light_type' string = 'Light Type'/>
+              </group>
+            </group>
+            <group string = 'Control Panel' attrs="{'invisible': [('hvac_spec_type', '!=', 'value5')]}">
+              <group>
+                <field name='havc_spec_cp_model_number' string = 'Model Number'/>
+                <field name='hvac_spec_cp_electrical_supply_voltage' string = 'Electrical Supply Voltage'/>
+                <field name='hvac_spec_cp_number_of_exhaust_fan' string = '# Of Exhaust fan'/>
+                <field name='hvac_spec_cp_number_of_mau' string = '# Of MAU'/>
+                <field name='hvac_spec_cp_c1c2_interlocks' string = 'C1D2 Interlocks'/>
+              </group>
+              <group>
+                <field name='hvac_spec_cp_intrinsically_safe' string = 'Intrinsically Safe'/>
+                <field name='hvac_spec_cp_number_of_feeds' string = '# Of Feeds'/>
+                <field name='hvac_spec_cp_pneumatic_doors' string = 'Pneumatic Doors'/>
+                <field name='hvac_spec_cp_remote_access_device' string = 'Remote Access Device'/>
+              </group>
+            </group>
+            <group string = 'Door' attrs="{'invisible': [('hvac_spec_type', '!=', 'value3')]}">
+              <group>
+                <field name='hvac_spec_door_type' string = 'Type'/>
+                <field name='hvac_spec_door_model' string = 'Model Number'/>
+                <field name='hvac_spec_door_opening_width' string = 'Opening Width'/>
+                <field name='hvac_spec_door_opening_height' string = 'Opening Height'/>
+                <field name='hvac_spec_door_overall_height' string = 'Overall Height'/>
+              </group>
+              <group>
+                <field name='hvac_spec_door_oveall_width' string = 'Overall Width'/>
+                <field name='hvac_spec_door_insulated' string = 'Insulated'/>
+                <field name='hvac_spec_door_number_of_view_windows' string = 'View Window Qty'/>
+                <field name='hvac_spec_door_number_of_skins' string = '# of Skins'/>
+                <field name='hvac_spec_door_hinge_type' string = 'Hing Type'/>
+              </group>
+            </group>
+            <group string = 'MAU' attrs="{'invisible': [('hvac_spec_type', '!=', 'value1')]}">
+              <group>
+                <field name='hvac_spec_mau_type' string = 'type'/>
+                <field name='hvac_spec_mau_fuel_type' string = 'Fuel Type'/>
+                <field name='hvac_spec_mau_model_number' string = 'Model Number'/>
+                <field name='hvac_spec_mau_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
+              </group>
+              <group>
+                <field name='hvac_spec_mau_cfm' string = 'CFM'/>
+                <field name='hvac_spec_mau_esp' string = 'ESP'/>
+                <field name='hvac_spec_mau_serial_number' string = 'Serial Number'/>
+              </group>
+            </group>
+            <group string = 'Exhaust Fan' attrs="{'invisible': [('hvac_spec_type', '!=', 'value4')]}">
+              <group>
+              <field name='hvac_spec_exfan_model_number' string = 'Model Number'/>
+              <field name='hvac_spec_exfan_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
+              <field name='hvac_spec_exfan_diameter' string = 'Diameter'/>
+              <field name='hvac_spec_exfan_esp' string = 'ESP'/>
+              <field name='hvac_spec_exfan_blade_type' string = 'Blade Type'/>
+              </group>
+              <group>
+              <field name='hvac_spec_exfan_cfm' string = 'CFM'/>
+              <field name='hvac_spec_exfan_hub_size' string = 'Hub Size'/>
+              <field name='hvac_spec_exfan_hub_serial_number' string = 'Hub Serial Number'/>
+              <field name='hvac_spec_exfan_number_of_blades' string = '# Of Blades'/>
+              </group>
+            </group>
+
+          </page>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</odoo>
