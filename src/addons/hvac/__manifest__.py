@@ -26,7 +26,7 @@
     'data': [
         # 'security/ir.model.access.csv',
         'wizards/sale_order.xml',
-        'views/sale_order.xml',
+        'views/sales_order.xml',
         'views/views.xml',
         'views/templates.xml',
     ],
