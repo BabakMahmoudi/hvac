@@ -11,19 +11,32 @@
         </tree>
       </field>
     </record>
- <!-- Form View -->
+    <!-- Form View -->
     <record model="ir.ui.view" id="hvac_mrp_project_form">
       <field name="name">sandbox form</field>
       <field name="model">hvac.mrp.project</field>
       <field name="arch" type="xml">
         <form>
-          <header>
-            <!--The oe_highlight class gives the button a red color when it is saved.
-		It is usually used to indicate the expected behaviour. -->
-            <!-- <button string="Generate name" type="object" name="generate_record_name" class="oe_highlight"/>
-            <button string="Generate password" type="object" name="generate_record_password"/>
-            <button string="Clear data" type="object" name="clear_record_data"/> -->
-          </header>
+          <notebook>
+            <page name="MO" string="MO">
+              <field name="mf_order" widget="one2many">
+                <tree string="Variants" editable="bottom">
+                  <field name="name" />
+                  <!-- <field name ='mf_order'/> -->
+
+                </tree>
+              </field>
+            </page>
+            <page name="Tasks" string="tasks" >
+              <field name="task_ids" widget="one2many">
+                <tree string="Variants" editable="bottom">
+                  <field name="name" />
+                </tree>
+              </field>
+
+
+            </page>
+          </notebook>
           <field name="name"/>
         </form>
       </field>
@@ -40,7 +53,7 @@
 
     <!-- server action to the one above -->
 
-    <!-- <record model="ir.actions.server" id="hvac_mrp_project_action_server">
+    <record model="ir.actions.server" id="hvac_mrp_project_action_server">
       <field name="name">hvac_project server</field>
       <field name="model_id" ref="model_hvac_mrp_project"/>
       <field name="state">code</field>
@@ -51,7 +64,7 @@
           "res_model": model._name,
         }
       </field>
-    </record> -->
+    </record>
 
 
     <!-- Top menu item -->
@@ -65,10 +78,8 @@
 
     <!-- actions -->
 
-    <menuitem name="List" id="hvac_project_menu_1_list" parent="hvac_project_menu_1"
-              action="hvac_project_action_window"/>
-    <!-- <menuitem name="Server to list" id="hvac_project" parent="hvac_project_menu_2"
-              action="hvac_project_action_server"/> -->
+    <menuitem name="List" id="hvac_project_menu_1_list" parent="hvac_project_menu_1" action="hvac_project_action_window"/>
+    <!-- <menuitem name="Server to list" id="hvac_project" parent="hvac_project_menu_2" action="hvac_project_action_server"/> -->
 
   </data>
 </odoo>
