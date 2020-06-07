@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "hvac",
+    'name': "Manufactuting Projects",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
@@ -20,20 +20,18 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base','mrp','sale'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-        #'wizards/sale_order.xml',
-        # 'views/sales_order.xml',
-        #'views/views.xml',
-        #'views/templates.xml',
+        'security/ir.model.access.csv',
+        'views/views.xml',
+        'views/templates.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
-    'application': True,
+    'application':True,
     'installable': True,
 }
