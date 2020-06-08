@@ -21,7 +21,9 @@
             <page name="MO" string="MO">
               <field name="mf_order" widget="one2many">
                 <tree string="Variants" editable="bottom">
-                  <field name="name" />
+                  <field name="name"/>
+                  <!-- <field name='product_tmpl_id'/> -->
+                  <!-- <field name='MFO_Name'/> -->
                   <!-- <field name ='mf_order'/> -->
 
                 </tree>
@@ -31,6 +33,8 @@
               <field name="task_ids" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name" />
+                  <field name='manufacturing_order'/>
+                  <field name="product_id"/>
                 </tree>
               </field>
 

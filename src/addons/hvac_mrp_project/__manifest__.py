@@ -28,6 +28,7 @@
         'views/views.xml',
         'views/templates.xml',
         'views/sale_order_mrp_projects.xml',
+        'views/sale_order_task.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
