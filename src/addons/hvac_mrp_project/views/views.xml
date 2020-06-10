@@ -17,6 +17,14 @@
       <field name="model">hvac.mrp.project</field>
       <field name="arch" type="xml">
         <form>
+          <group>
+            <group>
+              <field name="name"/>
+              <button name="addProduct" type="object" string="Add Product" />
+            </group>
+            <group>
+            </group>
+          </group>
           <notebook>
             <page name="MO" string="MO">
               <field name="mf_order" widget="one2many">
@@ -29,7 +37,7 @@
                 </tree>
               </field>
             </page>
-            <page name="Tasks" string="tasks" >
+            <page name="Tasks" string="tasks">
               <field name="task_ids" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name" />
