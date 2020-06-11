@@ -24,11 +24,14 @@
 
     # always loaded
     'data': [
+        'data/ir_sequence_data.xml',
         'security/ir.model.access.csv',
-        'views/views.xml',
         'views/templates.xml',
         'views/sale_order_mrp_projects.xml',
+        'views/product_template_view.xml',
         'views/sale_order_task.xml',
+        'wizards/add_product_wizard_view.xml',
+        'views/hvac_mrp_project_views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
