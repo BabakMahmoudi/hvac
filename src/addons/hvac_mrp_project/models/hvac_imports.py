@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from odoo.addons.sale.models.sale import SaleOrderLine
     from odoo.addons.product.models.product import ProductProduct
     from odoo.addons.product.models.product_template import ProductTemplate
+    from odoo.addons.mrp.models.mrp_bom import MrpBom,MrpBomLine
 
     from hvac_mrp_project.models.hvac_mrp_bom_extensions import HvacMrpBomExtensions, HvacMrpBomLineExtensions
     from odoo import models, fields, api
@@ -21,3 +22,5 @@ else:
     HvacMrpBomLineExtensions = models.Model
     ProductProduct = models.Model
     ProductTemplate = models.Model
+    MrpBom = models.Model
+    MrpBomLine = models.Model

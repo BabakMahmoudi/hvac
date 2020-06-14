@@ -66,32 +66,89 @@ class HvacMrpProject(models.Model):
         result = False
         utils = self.getUtils()
         utils.getProjectAttributeValue(self.code)
-        product_id = product_tmpl_id.getProjectVariant(self)
-
+        product = product_tmpl_id.getProjectVariant(self)
+        product.get_boms()
         # utils.ensureProjectAttributeIsSelectedOnProductTemplate(
         #     product_tmpl_id, self.code)
-        # product_id:HvacProductExtensions = utils.createProjectProductVariant(
-        #     product_tmpl_id, self.code)
-        
+        utils.createProjectProductVariant(
+             product_tmpl_id, self.code)
         if bom_id:
-            bom_id.fork(self)
+            for line in bom_id.bom_line_ids:
+                a:HvacMrpBomLineExtensions = line
+                a.product_tmpl_id.getProjectVariant(self)
+        #self.flush()
+
+        bom = product_tmpl_id.fork(self,bom_id)
+        #boms = product.fork(bom_id)
+        # boms = utils.get_boms(product_tmpl_id)
+        # if bom_id:
+        #     bom_id.fork(self)
+        #self.flush()
+        #self.invalidate_cache()
+        boms = product.get_boms()
+
         sale_order = self.getSaleOrder(True)
         sale_order_line = self.env['sale.order.line'].create([{
             'order_id': sale_order.id,
             'product_template_id': product_tmpl_id.id,
-            'product_id': product_id.id
+            'product_id': product.id,
+            'bom_id':boms[0].id
         }])
         return result
 
+    def create_project_deliverable_product(self):
+        result = self.env['product.product'].create([{
+            'name': self.code
+        }])
+        return result
+
+    def create_project_bom(self):
+        product = self.create_project_deliverable_product()
+        result = self.env['mrp.bom'].create({
+            'product_id': product.id,
+            'product_tmpl_id': product.product_tmpl_id.id,
+            #'product_tmpl_id': self.product_7_template.id,
+            'product_uom_id': product.uom_id.id, 
+            'product_qty': 1.0,
+            #'routing_id': self.routing_2.id,
+            'type': 'normal',
+        })
+        for l in self.sale_order_lines:
+            line = self.env['mrp.bom.line'].create({
+                'bom_id': result.id,
+                'product_id': l.product_id.id,
+                'product_qty': 2,
+                'child_bom_id': l.bom_id.id
+            })
+        return result
+        # test_bom_l2 = self.env['mrp.bom.line'].create({
+        #     'bom_id': test_bom.id,
+        #     'product_id': self.product_3.id,
+        #     'product_qty': 2,
+        #     'bom_product_template_attribute_value_ids': [(4, self.product_7_attr1_v1.id)],
+        # })
+        # test_bom_l3 = self.env['mrp.bom.line'].create({
+        #     'bom_id': test_bom.id,
+        #     'product_id': self.product_4.id,
+        #     'product_qty': 2,
+        #     'bom_product_template_attribute_value_ids': [(4, self.product_7_attr1_v2.id)],
+        # })
     def test(self):
-        for line in self.sale_order_lines:
-            product = line.product_template_id
-            print(product.name)
-            for bom_id in product.bom_ids:
-                print(bom_id.display_name)
-                for bom_line in bom_id.bom_line_ids:
-                    name = bom_line.id
-        print('here')
+        product:HvacProductTemplateExtensions = self.env['product.template'].search([('name','=','Assembly 1')])
+        product.ensureProject(self)
+
+        return False
+
+
+
+        # for line in self.sale_order_lines:
+        #     product = line.product_template_id
+        #     print(product.name)
+        #     for bom_id in product.bom_ids:
+        #         print(bom_id.display_name)
+        #         for bom_line in bom_id.bom_line_ids:
+        #             name = bom_line.id
+        # print('here')
 
     # def addProduct(self):
     #     utils = self.env["hvac.utils"]

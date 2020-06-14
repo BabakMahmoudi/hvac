@@ -2,9 +2,23 @@
   <data>
     <!-- explicit list view definition -->
 
+    <record id="action_report_mrp_hvac_bom" model="ir.actions.client">
+      <field name="name">BoM Structure &amp; Cost</field>
+      <!-- -->
+      <!-- 
+        We may switch modes by using the appopriate tag
+        field.
+        Light mode : <field name="tag">mrp_bom_report</field>
+        Compelet mode:<field name="tag">mrp_bom_hvac_report</field>
+      -->
+      <field name="tag">mrp_bom_report</field>
+      
+      <field name="context" eval="{'model': 'report.mrp.hvac.report_bom_structure'}" />
+    </record>
     <record model="ir.ui.view" id="hvac_project_list">
       <field name="name">hvac_project_list</field>
       <field name="model">hvac.mrp.project</field>
+      
       <field name="arch" type="xml">
         <tree>
           <field name="name"/>
@@ -26,19 +40,18 @@
               <!-- <button name="addProduct" type="object" string="Add Product" /> -->
             </group>
             <group>
-               <button
-                    name="%(hvac_mrp_project_addproduct_wizard_action)d"
-                    string="Add Product"
-                    type="action"
-                />
-                <button name="test" type="object" string="Test" />
+              <button name="%(hvac_mrp_project_addproduct_wizard_action)d" string="Add Product" type="action" />
+              <button name="test" type="object" string="Test" />
+              <button name="%(action_report_mrp_hvac_bom)d" type="action"
+                                class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
             </group>
           </group>
           <notebook>
-           <page name="SaleOder" string="Products">
+            <page name="SaleOder" string="Products">
               <field name="sale_order_lines" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name"/>
+                  <field name="bom_id"/>
                   <!-- <field name='product_tmpl_id'/> -->
                   <!-- <field name='MFO_Name'/> -->
                   <!-- <field name ='mf_order'/> -->

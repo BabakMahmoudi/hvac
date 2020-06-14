@@ -22,8 +22,11 @@ var MrpBomReport = stock_report_generic.extend({
             this.given_context.searchQty || 1,
             this.given_context.searchVariant,
         ];
+
         return this._rpc({
-                model: 'report.mrp.report_bom_structure',
+                // Change it to use our model
+                //model: 'report.mrp.report_bom_structure',
+                model: 'report.mrp.hvac.report_bom_structure',
                 method: 'get_html',
                 args: args,
                 context: this.given_context,
@@ -216,7 +219,7 @@ var MrpBomReport = stock_report_generic.extend({
     },
 });
 
-core.action_registry.add('hvac_mrp_project_bom_report', MrpBomReport);
+core.action_registry.add('mrp_bom_hvac_report', MrpBomReport);
 return MrpBomReport;
 
 });

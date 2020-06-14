@@ -32,8 +32,10 @@
         'views/sale_order_task.xml',
         'wizards/add_product_wizard_view.xml',
         'views/hvac_mrp_project_views.xml',
+        'report/mrp_report_bom_structure.xml'
     ],
     # only loaded in demonstration mode
+    'qweb': ['static/src/xml/mrp.xml'],
     'demo': [
         'demo/demo.xml',
     ],
