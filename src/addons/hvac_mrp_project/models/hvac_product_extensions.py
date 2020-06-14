@@ -41,7 +41,16 @@ class HvacProductExtensions(ProductProduct):
             bom:HvacMrpBomLineExtensions = bom.fork(project)
             bom.bom_product_template_attribute_value_ids =False
             bom.product_id = self
+            bom.code = '{}'.format(self.get_project_code())
         return self
+
+    def get_project_code(self):
+        result =''
+        try:
+            result = self.product_template_attribute_value_ids[0].product_attribute_value_id.name
+        except:
+            pass
+        return result
 
     def is_already_forked(self):
         """
@@ -74,6 +83,8 @@ class HvacProductTemplateExtensions(ProductTemplate):
         utils.ensureProjectAttributeIsSelectedOnProductTemplate(
             self, project.code)
         return self
+
+    
 
     def getProjectVariant(self, project: HvacMrpProject, auto_create=True) -> HvacProductExtensions:
         """ 

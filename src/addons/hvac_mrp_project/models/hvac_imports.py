@@ -3,6 +3,7 @@ if TYPE_CHECKING:
     from hvac_mrp_project.models.hvac_mrp_project import HvacMrpProject
     from hvac_mrp_project.models.hvac_utils import HvacUtils
     from hvac_mrp_project.models.hvac_product_extensions import HvacProductExtensions, HvacProductTemplateExtensions
+    from hvac_mrp_project.models.hvac_sale_order_extensions import HvacSaleOrderExtensions, HvacSaleOrderLineExtensions
     from odoo.addons.sale.models.sale import SaleOrder
     from odoo.addons.sale.models.sale import SaleOrderLine
     from odoo.addons.product.models.product import ProductProduct
@@ -24,3 +25,5 @@ else:
     ProductTemplate = models.Model
     MrpBom = models.Model
     MrpBomLine = models.Model
+    HvacSaleOrderExtensions = models.Model
+    HvacMrpBomLineExtensions = models.Model
