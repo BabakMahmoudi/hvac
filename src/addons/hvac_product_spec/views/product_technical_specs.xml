@@ -7,6 +7,11 @@
       <field name="model">product.template</field>
       <field name="inherit_id" ref="product.product_template_form_view"/>
       <field name="arch" type="xml">
+        <xpath expr="//form//sheet" position="before">
+          <header>
+            <button name="compute_des" string='Compute Description' type='object'/>
+          </header>
+        </xpath>
         <xpath expr="//page[@name='general_information']" position="after">
           <page string='Technical Specs'>
             <group>
@@ -76,21 +81,25 @@
             </group>
             <group string = 'Exhaust Fan' attrs="{'invisible': [('hvac_spec_type', '!=', 'value4')]}">
               <group>
-              <field name='hvac_spec_exfan_model_number' string = 'Model Number'/>
-              <field name='hvac_spec_exfan_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
-              <field name='hvac_spec_exfan_diameter' string = 'Diameter'/>
-              <field name='hvac_spec_exfan_esp' string = 'ESP'/>
-              <field name='hvac_spec_exfan_blade_type' string = 'Blade Type'/>
+                <field name='hvac_spec_exfan_model_number' string = 'Model Number'/>
+                <field name='hvac_spec_exfan_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
+                <field name='hvac_spec_exfan_diameter' string = 'Diameter'/>
+                <field name='hvac_spec_exfan_esp' string = 'ESP'/>
+                <field name='hvac_spec_exfan_blade_type' string = 'Blade Type'/>
               </group>
               <group>
-              <field name='hvac_spec_exfan_cfm' string = 'CFM'/>
-              <field name='hvac_spec_exfan_hub_size' string = 'Hub Size'/>
-              <field name='hvac_spec_exfan_hub_serial_number' string = 'Hub Serial Number'/>
-              <field name='hvac_spec_exfan_number_of_blades' string = '# Of Blades'/>
+                <field name='hvac_spec_exfan_cfm' string = 'CFM'/>
+                <field name='hvac_spec_exfan_hub_size' string = 'Hub Size'/>
+                <field name='hvac_spec_exfan_hub_serial_number' string = 'Hub Serial Number'/>
+                <field name='hvac_spec_exfan_number_of_blades' string = '# Of Blades'/>
               </group>
             </group>
 
           </page>
+        </xpath >
+        <xpath expr="//page[@name='general_information']" position="inside">
+          <field name="hvac_spec_description" string='DES'/>
+
         </xpath>
       </field>
     </record>

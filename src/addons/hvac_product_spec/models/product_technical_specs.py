@@ -86,3 +86,20 @@ class technical_specs(models.Model):
     hvac_spec_exfan_hub_size = fields.Char()
     hvac_spec_exfan_hub_serial_number = fields.Char()
     hvac_spec_exfan_number_of_blades = fields.Integer()
+
+
+    hvac_spec_description = fields.Text()
+
+    def compute_des(self):
+        p = []
+        for bom_line in self.bom_line_ids:
+            p.append(bom_line.display_name )
+            p.append(bom_line.product_qty)
+            p.append(bom_line.child_line_ids.display_name)
+            p.append(bom_line.child_line_ids.product_qty)
+        
+        self.hvac_spec_description = 'bom 1 is {} qty {} \n bom 2 is {} qty {}'.format(p[0]  , p[1] , p[2] , p[3])
+
+        # bom 1 = Bom product
+        # bom 2 = babak
+ 

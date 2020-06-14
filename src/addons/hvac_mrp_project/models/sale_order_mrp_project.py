@@ -7,6 +7,16 @@ class HvacSaleOrderExtensions(models.Model):
 
     hvac_project_name = fields.Many2one('hvac.mrp.project') 
 
+
+    def ImportBom(self , bom_id , project):
+
+        for bom_line in bom_id.bom_line_ids:
+            bom_task = self.env['hvac.mrp.tasks'].create({'name':bom_line.display_name})
+            bom_task.product_id=bom_line.product_id
+            bom_task.mrp_ref = project 
+            self.ImportBom(bom_line.child_bom_id , project)
+
+
     
     def creat_task(self):
         aa = self.env['hvac.mrp.project'].search([("sale_order", '=', self.id)]).id
@@ -27,10 +37,7 @@ class HvacSaleOrderExtensions(models.Model):
             for order in orders:
                 if order.product_id == task.product_id:
                     task.manufacturing_order = order.id
-                for bom_line in order.bom_id.bom_line_ids:
-                    bom_task = self.env['hvac.mrp.tasks'].create({'name':bom_line.display_name})
-                    bom_task.product_id=bom_line.product_id
-                    bom_task.mrp_ref = project
+                    self.ImportBom(order.bom_id , project)
             
 
 
