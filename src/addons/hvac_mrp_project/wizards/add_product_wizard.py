@@ -5,6 +5,10 @@ class AddProductWizard(models.TransientModel):
     _name = "hvac.mrp.project.add.product.wizard"
 
     name = fields.Char(String="Name")
+    # section = fields.Selection([
+    #     ('1', '1'), ('2', '2'), 
+    #     ('3', '3'), ('4', '4'), 
+    #     ('5', '5'), ('3', '3')])
     product_tmpl_id = fields.Many2one(
         "product.template",
         "Product",

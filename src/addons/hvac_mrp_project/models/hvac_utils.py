@@ -22,6 +22,10 @@ class HvacUtils(models.TransientModel):
         for value in values:
             print(value)
 
+    def getProjectSectionCode(self,project_code: str, section: str) -> str:
+        #return project_code
+        return '{}_{}'.format(project_code, section)
+
     def get_boms(self, product_tmpl, product=False):
         if product and product_tmpl:
             return self.env['mrp.bom'].search([
@@ -81,23 +85,21 @@ class HvacUtils(models.TransientModel):
                     'sequence': 1, })
         return result
 
-    """
-        Make sure if the template has the 'project variant line' and also
-        this variant includes all projects. So that we can create products 
-        with the project variant in this template. 
-    """
-
     def ensureProjectAttributeIsSelectedOnProductTemplate(self, product_tmpl, proj_code):
+        """
+            Make sure if the template has the 'project variant line' and also
+            this variant includes the proj_code. So that we can create products 
+            with the project variant in this template. 
+        """
         attrib = self.getProjectAttribute()
         value_id = self.getProjectAttributeValue(proj_code)
         if product_tmpl:
             if not product_tmpl.attribute_line_ids:
                 product_tmpl.attribute_line_ids = \
-                self.env['product.template.attribute.line'].create({
-                    'product_tmpl_id': product_tmpl.id,
-                    'attribute_id': attrib.id,
-                    'value_ids': [(6, 0, [value_id.id])], })
-
+                    self.env['product.template.attribute.line'].create({
+                        'product_tmpl_id': product_tmpl.id,
+                        'attribute_id': attrib.id,
+                        'value_ids': [(6, 0, [value_id.id])], })
             if not product_tmpl.attribute_line_ids.value_ids.__contains__(value_id):
                 product_tmpl.attribute_line_ids.value_ids = \
                     product_tmpl.attribute_line_ids.value_ids.concat(value_id)
@@ -112,7 +114,6 @@ class HvacUtils(models.TransientModel):
             #     if not project_line.value_ids.__contains__(value_id):
             #         project_line.value_ids = project_line.value_ids.concat(
             #             value_id)
-        print('hhhh')
         return product_tmpl
 
     def ensureProjectAttributeLineOnProjectTemplate(self, produc_tmpl):
@@ -129,12 +130,6 @@ class HvacUtils(models.TransientModel):
                     'value_ids': [(6, 0, all_values.ids)], })
             else:
                 project_line.value_ids = [(6, 0, all_values.ids)]
-            # for value in self.getProjectAttributeValues():
-            #     if not self.env['product.template.attribute.value'].search([
-            #             ('attribute_line_id', "=", project_line.id),
-            #             ('product_attribute_value_id', "=", value.id)]):
-            #         self.env['product.template.attribute.value'].create([
-            #             {'attribute_line_id': project_line.id, 'product_attribute_value_id': value.id}])
         return produc_tmpl
 
     # def createProjectAttribute(self):
@@ -185,16 +180,13 @@ class HvacUtils(models.TransientModel):
             # }])
         return result
 
-    def projectAttributeValueExists(self, projectCode):
-        self.env['product.attribute'].search()
+    # def getVariantProjectName(self, product):
+    #     attributes = self.env['product.attribute.value'].search([])
+    #     project_attribute = self.env['product.attribute'].search(
+    #         [('name', '=', self._project_attribute_name)])
 
-    def getVariantProjectName(self, product):
-        attributes = self.env['product.attribute.value'].search([])
-        project_attribute = self.env['product.attribute'].search(
-            [('name', '=', self._project_attribute_name)])
+    #     return False
 
-        return False
-
-    def forkBom(self, bom_id, project):
-        if type(project) == 'str':
-            project = self.getProjectAttributeValue(project)
+    # def forkBom(self, bom_id, project):
+    #     if type(project) == 'str':
+    #         project = self.getProjectAttributeValue(project)
