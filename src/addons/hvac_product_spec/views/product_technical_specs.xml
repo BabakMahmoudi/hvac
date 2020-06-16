@@ -7,15 +7,12 @@
       <field name="model">product.template</field>
       <field name="inherit_id" ref="product.product_template_form_view"/>
       <field name="arch" type="xml">
-        <xpath expr="//form//sheet" position="before">
-          <header>
-            <button name="compute_des" string='Compute Description' type='object'/>
-          </header>
-        </xpath>
         <xpath expr="//page[@name='general_information']" position="after">
           <page string='Technical Specs'>
             <group>
               <group>
+                <field name='hvac_spec_computed_des' string="computed des"/>
+                <field name ='hvac_spec_manual_des' string="technical notes"/>
                 <field name='hvac_spec_type' string = 'Product Type'/>
               </group>
               <group/>
@@ -96,10 +93,6 @@
             </group>
 
           </page>
-        </xpath >
-        <xpath expr="//page[@name='general_information']" position="inside">
-          <field name="hvac_spec_description" string='DES'/>
-
         </xpath>
       </field>
     </record>

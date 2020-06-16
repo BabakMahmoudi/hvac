@@ -2,13 +2,21 @@
 
 from odoo import models, fields, api
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING :
+    from odoo.addons.product.models.product_template import ProductTemplate
+else:
+    ProductTemplate = models.Model
 
-class technical_specs(models.Model):
+
+class technical_specs(ProductTemplate):
     _inherit = 'product.template'
 
+    hvac_spec_computed_des = fields.Text(compute="compute_description")
+    hvac_spec_manual_des = fields.Text()
     hvac_spec_type = fields.Selection([('value1', 'MAU'), ('value2', 'ENC'), (
         'value3', 'Door'), ('value4', 'Exhaust Fan'), ('value5', 'Control Panel')])
-
+    
     # ENC Fields
 
     hvac_spec_enc_dimension_length = fields.Integer()
@@ -87,19 +95,66 @@ class technical_specs(models.Model):
     hvac_spec_exfan_hub_serial_number = fields.Char()
     hvac_spec_exfan_number_of_blades = fields.Integer()
 
+    def get_enc_des(self):
+        des = ''
+        try:
+            des = 'outside dimentions : {}" W x {}" L x {}" H'.format(self.hvac_spec_enc_dimension_width,self.hvac_spec_enc_dimension_length ,self.hvac_spec_enc_dimension_height) 
+            des = des + '\ninside dimention : {}" W x {}" L x {}" H'.format(self.hvac_spec_enc_dimension_internal_width , self.hvac_spec_enc_dimension_internal_length,self.hvac_spec_enc_dimension_internal_height)
+            
+        except:
+            pass
+        return des 
+    def get_door_des(self):
+        des = ''
+        try:
+            des = 'dimentions : {}" W x {}" H'.format(self.hvac_spec_door_oveall_width , self.hvac_spec_door_overall_height )
+        except :
+            pass
+        return des
+    def get_mau_des(self):
+        des = ''
+        try:
+            mau_type_dic = {'value1': 'Single Stage', 'value2': 'Dual', 'value3': 'Dual Recirc', 'value4': 'Custom'}
+            mau_fuel_dic = {'value1': 'Nat Gas', 'value2': 'Propane'}
+            des = "mau type : {}".format(mau_type_dic.get(self.hvac_spec_mau_type))
+            des = des + "\nfuel type : {}".format(mau_fuel_dic.get(self.hvac_spec_mau_fuel_type))
+        except:
+            pass
+        return des
+    def get_bom_des(self):
+        des = ''
+        try:
+            if self.bom_ids :
+                for line in self.bom_ids.bom_line_ids:
+                    des =des + '{} {}  \n {}'.format(line.product_qty ,line.product_id.name,line.product_tmpl_id.get_description())
+        except:
+            pass
+        return des
+    
 
-    hvac_spec_description = fields.Text()
+    def get_description(self):
+        res = ''   
+        if self.hvac_spec_type and self.hvac_spec_type == "value2":
+            res = self.get_enc_des()           
+        if self.hvac_spec_type and self.hvac_spec_type == "value3":
+            res = self.get_door_des()
+        if self.hvac_spec_type and self.hvac_spec_type == "value1":
+            res = self.get_mau_des()
+        if self.hvac_spec_manual_des :
+            res = res + "\n" + self.hvac_spec_manual_des
+        res = res + "\n" + self.get_bom_des()
+        self.hvac_spec_computed_des = res
+        return res
 
-    def compute_des(self):
-        p = []
-        for bom_line in self.bom_line_ids:
-            p.append(bom_line.display_name )
-            p.append(bom_line.product_qty)
-            p.append(bom_line.child_line_ids.display_name)
-            p.append(bom_line.child_line_ids.product_qty)
+    @api.depends("hvac_spec_enc_dimension_length",
+        "hvac_spec_enc_dimension_width",
+        "hvac_spec_enc_dimension_height",
+        "hvac_spec_enc_dimension_internal_height",
+        "hvac_spec_enc_dimension_internal_width",
+        "hvac_spec_enc_dimension_internal_length",
+        "hvac_spec_door_overall_height",
+        "hvac_spec_door_oveall_width",
+        "hvac_spec_mau_type")
+    def compute_description(self):
+        self.hvac_spec_computed_des = self.get_description() 
         
-        self.hvac_spec_description = 'bom 1 is {} qty {} \n bom 2 is {} qty {}'.format(p[0]  , p[1] , p[2] , p[3])
-
-        # bom 1 = Bom product
-        # bom 2 = babak
- 
