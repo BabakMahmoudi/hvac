@@ -1,4 +1,3 @@
-
 from odoo import models, fields, api
 from typing import TYPE_CHECKING,Any
 if TYPE_CHECKING:
@@ -22,23 +21,8 @@ class HvacSaleOrderExtensions(SaleOrder):
     project_id = fields.Many2one('hvac.mrp.project',string="Manufacturing Project") 
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD:src/addons/hvac_mrp_project/models/sale_order_mrp_project.py
-    def ImportBom(self , bom_id , project):
-
-        for bom_line in bom_id.bom_line_ids:
-            bom_task = self.env['hvac.mrp.tasks'].create({'name':bom_line.display_name})
-            bom_task.product_id=bom_line.product_id
-            bom_task.mrp_ref = project 
-            self.ImportBom(bom_line.child_bom_id , project)
-
-
-=======
->>>>>>> ed63681ab88c6936f1fb86fbbea5c3121556b072:src/addons/hvac_mrp_project/models/hvac_sale_order_extensions.py
-=======
     def getProject(self)->HvacMrpProject:
         return self.project_id
->>>>>>> dd35533885003db51b24d955f944be5884d3cafd
     
     def creat_task(self):
         aa = self.env['hvac.mrp.project'].search([("sale_order", '=', self.id)]).id
@@ -59,10 +43,6 @@ class HvacSaleOrderExtensions(SaleOrder):
             for order in orders:
                 if order.product_id == task.product_id:
                     task.manufacturing_order = order.id
-<<<<<<< HEAD
-                    self.ImportBom(order.bom_id , project)
-            
-=======
                 for bom_line in order.bom_id.bom_line_ids:
                     bom_task = self.env['hvac.mrp.tasks'].create({'name':bom_line.display_name})
                     bom_task.product_id=bom_line.product_id
@@ -97,7 +77,6 @@ class HvacSaleOrderExtensions(SaleOrder):
         pass
 
     
->>>>>>> dd35533885003db51b24d955f944be5884d3cafd
 class HvacSaleOrderLineExtensions(SaleOrderLine):
     _inherit = "sale.order.line"
 
@@ -112,10 +91,3 @@ class HvacSaleOrderLineExtensions(SaleOrderLine):
         """ Hey """
         self.bom_id
         self.test
-
-
-
-
-
-    
-
