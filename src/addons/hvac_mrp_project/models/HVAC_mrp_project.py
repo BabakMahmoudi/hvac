@@ -46,8 +46,8 @@ class HvacMrpProject(models.Model):
     sale_order_lines = fields.One2many(
         'sale.order.line', compute='_compute_sale_order_lines', readonly=True)
 
-    mf_order = fields.One2many("mrp.production", "project_id")
-    task_ids = fields.One2many('hvac.mrp.tasks', 'mrp_ref')
+    
+    task_ids = fields.One2many('hvac.mrp.tasks', 'project_id')
     bom_id = fields.Many2one('mrp.bom', "Bill of Materials")
     sale_order_id = fields.Many2one('sale.order')
     deliverable_product_id = fields.Many2one(
@@ -184,6 +184,16 @@ class HvacMrpProject(models.Model):
         print("SalerOrder State Changed: {}".format(new_state))
         pass
 
+    # def get_task(self , MO):
+    #     result = self.env["hvac.mrp.tasks"].search([
+    #         ('manufacturing_order', '=', MO.id)])
+    #     if not result :
+    #         result = self.env["hvac.mrp.tasks"].create({
+    #         'manufacturing_order': MO.id ,
+    #         'project_id' : self.id
+    #         }) 
+    #     return result 
+
     def Recalculate(self):
         """
             Recalculates the project.
@@ -201,6 +211,7 @@ class HvacMrpProject(models.Model):
         def process_production(production:HvacMrpProduction):
             if production:
                 print('MO for {0}'.format(production.product_id.display_name))    
+                self.task_ids.get_task_for_production(production , self)
                 for move in production.getRawComponentsMove():
                     process_move(move)
             return False
@@ -208,6 +219,7 @@ class HvacMrpProject(models.Model):
         def process_purchase(purchase_line:HvacPurchaseOrderLine):
             if purchase_line:
                 print('Purchase Line: {}'.format(purchase_line.name))
+                self.task_ids.get_task_for_purchase(purchase_line , self)
             return True
 
         def process_move(move:HvacStockMove):
@@ -313,9 +325,40 @@ class HvacProductionTasks(models.Model):
     _name = "hvac.mrp.tasks"
 
     name = fields.Char()
-    mrp_ref = fields.Many2one("hvac.mrp.project", 'task_ids')
+    project_id = fields.Many2one("hvac.mrp.project")
     manufacturing_order = fields.Many2one('mrp.production')
     product_id = fields.Many2one('product.product')
+    purchase = fields.Many2one("purchase.order.line")
+    planned_start = fields.Date()
+    planned_finish = fields.Date()
+
+    def get_task_for_purchase(self , PO:HvacPurchaseOrderLine , project):
+        result = self.env["hvac.mrp.tasks"].search([
+            ('purchase', '=', PO.id),('project_id','=',project.id)])
+        if not result :
+            result = self.env["hvac.mrp.tasks"].create({
+            'purchase': PO.id ,
+            'project_id' : project.id,
+            'name' : PO.name
+            
+            }) 
+        return result 
+    def get_task_for_production(self , MO:HvacMrpProduction , project):
+        result = self.env["hvac.mrp.tasks"].search([
+            ('manufacturing_order', '=', MO.id),('project_id','=',project.id)])
+        if not result :
+            result = self.env["hvac.mrp.tasks"].create({
+            'manufacturing_order': MO.id ,
+            'project_id' : project.id,
+            'planned_start' : MO.date_planned_start,
+            'planned_finish' : MO.date_planned_finished,
+            'name' : 'manufacture : {}'.format(MO.name)
+            }) 
+        return result 
+        
+        
+
+
 
 
 # class HvacMrpProjectProductLine(models.Model):
