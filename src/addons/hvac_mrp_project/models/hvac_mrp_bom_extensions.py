@@ -24,12 +24,7 @@ class HvacMrpBomExtensions(MrpBom):
 
     def fork(self, project: HvacMrpProject, section=False):
         """ Froks a bom for a specific project """
-        #utils = self.getUtils()
-        #project_attr = utils.getProjectAttributeValue(project.code)
-        #product_tmpl: HvacProductTemplateExtensions = self.product_tmpl_id
         result = self.copy()
-        # self.flush()
-        # self.invalidate_cache()
         for line in result.bom_line_ids:
             l: HvacMrpBomLineExtensions = line
             product_template: HvacProductTemplateExtensions = l.product_tmpl_id

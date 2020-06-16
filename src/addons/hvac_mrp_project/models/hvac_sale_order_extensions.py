@@ -19,9 +19,11 @@ else:
 
 class HvacSaleOrderExtensions(SaleOrder):
     _inherit = 'sale.order'
-    hvac_project_name = fields.Many2one('hvac.mrp.project') 
+    project_id = fields.Many2one('hvac.mrp.project',string="Manufacturing Project") 
 
 
+    def getProject(self)->HvacMrpProject:
+        return self.project_id
     
     def creat_task(self):
         aa = self.env['hvac.mrp.project'].search([("sale_order", '=', self.id)]).id
@@ -46,7 +48,36 @@ class HvacSaleOrderExtensions(SaleOrder):
                     bom_task = self.env['hvac.mrp.tasks'].create({'name':bom_line.display_name})
                     bom_task.product_id=bom_line.product_id
                     bom_task.mrp_ref = project
-            
+    
+    # @api.onchange('state')
+    # def on_state_change(self):
+    #     print('state changed ' + self.state)
+
+
+
+    # we failed to apply  @api.onchange('state')
+    # therefore we stick to overriding the write method
+    def write(self, values):
+        res = super(HvacSaleOrderExtensions, self).write(values)
+        if values.get('state',False):
+            self.onSaleOrderStateChanged(values.get('state',False))
+        # print ('write')
+        return res
+
+    # def _action_confirm(self):
+    #     print('confirmed ' + self.state)
+    #     res = super()._action_confirm()
+    #     self.onSaleOrderStateChanged()
+    #     return res
+
+    def onSaleOrderStateChanged(self, val):
+        print('Sale Order State Changed: {}'.format(val))
+        p:HvacMrpProject = self.project_id
+        if p:
+            p.onSaleOrderStatusChanged(self,val)
+        pass
+
+    
 class HvacSaleOrderLineExtensions(SaleOrderLine):
     _inherit = "sale.order.line"
 
