@@ -1,11 +1,12 @@
 from odoo import models, fields, api
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any,List
 
 if TYPE_CHECKING:
     from hvac_mrp_project.models.hvac_imports import \
         HvacProductExtensions, HvacProductTemplateExtensions, HvacUtils, \
         HvacMrpBomExtensions, HvacMrpBomLineExtensions, HvacSaleOrderLineExtensions, \
-        HvacSaleOrderExtensions
+        HvacSaleOrderExtensions, HvacStockMove, HvacStockMoveLine,HvacMrpProduction, \
+        HvacPurchaseOrderLine, HvacPurchaseOrder
 else:
     HvacBom = Any
     HvacMrpBomExtensions = models.Model
@@ -18,6 +19,11 @@ else:
     HvacProductExtensions = models.Model
     HvacSaleOrderLineExtensions = models.Model
     HvacSaleOrderExtensions = models.Model
+    HvacStockMove = models.Model
+    HvacStockMoveLine = models.Model
+    HvacMrpProduction = models.Model
+    HvacPurchaseOrderLine = models.Model
+    HvacPurchaseOrder = models.Model
 
 
 class HvacMrpProject(models.Model):
@@ -48,6 +54,22 @@ class HvacMrpProject(models.Model):
         'product.product', string="Deliverable",
         #default=lambda self: self._default_deliverable_product_id(),
         readonly=False,)
+
+    def test(self):
+        # product: HvacProductTemplateExtensions = self.env['product.template'].search(
+        #     [('name', '=', 'Assembly 1')])
+        # product.ensureProject(self)
+        
+        self.getProjectBom(recreate=True)
+        # self.getSaleOrder().action_confirm()
+        #sale_order = self.getSaleOrder()
+        self.Recalculate()
+        # for _line in sale_order.order_line:
+        #     line: HvacSaleOrderLineExtensions = _line
+        #     line.move_ids
+
+        return False
+
     @api.onchange('code')
     def _on_code_changed(self):
         self.deliverable_product_id = self.getProjectDeliverableProduct()
@@ -141,14 +163,72 @@ class HvacMrpProject(models.Model):
         result = self.sale_order_id
         if not result and auto_create:
             self.sale_order_id = self.env['sale.order'].create(
-                [{'partner_id': self.partner_id.id}]
+                [{
+                    'partner_id': self.partner_id.id,
+                    'project_id': self.id
+                }]
                 #[{'project_id': self._project_attribute_name}]
             )
         return result
+
     def get_product_used_count(self, product_tmpl_id: HvacProductTemplateExtensions):
         res = self.sale_order_lines.filtered(
             lambda x: x.product_template_id.id == product_tmpl_id.id)
         return len(res)
+
+    def onSaleOrderStatusChanged(self, saleoder: HvacSaleOrderExtensions, new_state: str):
+        """
+            This method is called from SaleOrder when the state of the 
+            sale order is changed.
+        """
+        print("SalerOrder State Changed: {}".format(new_state))
+        pass
+
+    def Recalculate(self):
+        """
+            Recalculates the project.
+        """
+        def get_moves() -> List[HvacStockMove]:
+            res = []
+            sale_order = self.getSaleOrder()
+            if sale_order:
+                for l in sale_order.order_line:
+                    line:HvacSaleOrderLineExtensions = l
+                    for m in line.move_ids:
+                        res.append(m)
+            return res
+
+        def process_production(production:HvacMrpProduction):
+            if production:
+                print('MO for {0}'.format(production.product_id.display_name))    
+                for move in production.getRawComponentsMove():
+                    process_move(move)
+            return False
+        
+        def process_purchase(purchase_line:HvacPurchaseOrderLine):
+            if purchase_line:
+                print('Purchase Line: {}'.format(purchase_line.name))
+            return True
+
+        def process_move(move:HvacStockMove):
+            production = move.getCreatedProduction()
+            purchase_line = move.getCreatedPurchaseLine()
+            if production:
+                process_production(production)
+            if purchase_line:
+                process_purchase(purchase_line)
+            # process this production
+
+
+            return False
+        for move in get_moves():
+            process_move(move)
+            # production = move.getCreatedProduction()
+            # print(production.ids)
+
+        return False
+
+        
 
     def addProduct(self, product_tmpl_id: HvacProductTemplateExtensions, bom_id: HvacMrpBomExtensions):
         """
@@ -170,9 +250,9 @@ class HvacMrpProject(models.Model):
         if bom_id:
             for line in bom_id.bom_line_ids:
                 a: HvacMrpBomLineExtensions = line
-                a.product_tmpl_id.getProjectVariant(self,section)
+                a.product_tmpl_id.getProjectVariant(self, section)
         # self.flush()
-        product_tmpl_id.fork(self, bom_id,section=section)
+        product_tmpl_id.fork(self, bom_id, section=section)
         bom = False
         boms = product.get_boms()
         bom = boms[0] if boms and len(boms) > 0 else bom_id
@@ -185,13 +265,6 @@ class HvacMrpProject(models.Model):
         }])
         return result
 
-    def test(self):
-        # product: HvacProductTemplateExtensions = self.env['product.template'].search(
-        #     [('name', '=', 'Assembly 1')])
-        # product.ensureProject(self)
-        self.getProjectBom(recreate=True)
-
-        return False
 
     @api.model
     def create(self, vals):
@@ -234,10 +307,6 @@ class HvacMrpProject(models.Model):
             # record.reconciled_invoices_count = len(record.reconciled_invoice_ids)
 
 
-class HvacMrpProduction(models.Model):
-
-    _inherit = 'mrp.production'
-    project_id = fields.Many2one('hvac.mrp.project', "mf_order")
 
 
 class HvacProductionTasks(models.Model):
