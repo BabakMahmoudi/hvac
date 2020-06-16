@@ -33,27 +33,30 @@
         <form>
           <div class="oe_button_box" name="button_box">
             <button name="%(action_report_mrp_hvac_bom)d" type="action" class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
+            <button name="Recalculate" type="object" string="Recalculate" icon="fa-calculator" class="oe_stat_button"/>
+            <button name="test" type="object" string="Test" icon="fa-gear" class="oe_stat_button"/>
           </div>
+
           <group>
             <group>
               <field name="name"/>
-              <field name="code" readonly="1"/>
-              <field name="code" invisible="1"/>
               <field name="partner_id"/>
-              <field name="deliverable_product_id"/>
-              <field name="bom_id"/>
               <field name="sale_order_id"/>
 
               <!-- <button name="addProduct" type="object" string="Add Product" /> -->
             </group>
             <group>
-              <button name="%(hvac_mrp_project_addproduct_wizard_action)d" string="Add Product" type="action" />
-              <button name="test" type="object" string="Test" />
-              <button name="%(action_report_mrp_hvac_bom)d" type="action" class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
+              <!-- <button name="%(hvac_mrp_project_addproduct_wizard_action)d" string="Add Product" type="action" /> -->
+              <field name="code" readonly="1"/>
+              <field name="code" invisible="1"/>
+              <field name="deliverable_product_id"/>
+              <field name="bom_id"/>
+
             </group>
           </group>
           <notebook>
             <page name="SaleOder" string="Products">
+              <button name="%(hvac_mrp_project_addproduct_wizard_action)d" string="Add Product" type="action" icon="fa-plus-square" class="oe_stat_button" />
               <field name="sale_order_lines" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name"/>
@@ -61,8 +64,7 @@
                 </tree>
               </field>
             </page>
-
-            <page name="Tasks" string="tasks">
+            <page name="Tasks" string="Tasks">
               <field name="task_ids" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name" />
@@ -73,11 +75,8 @@
                   <field name='purchase'/>
                 </tree>
               </field>
-
-
             </page>
           </notebook>
-          <field name="name"/>
         </form>
       </field>
     </record>
@@ -85,7 +84,7 @@
     <!-- actions opening views on models -->
 
     <record model="ir.actions.act_window" id="hvac_project_action_window">
-      <field name="name">hvac_project window</field>
+      <field name="name">Manufacturing Projects</field>
       <field name="res_model">hvac.mrp.project</field>
       <field name="view_mode">tree,form</field>
     </record>

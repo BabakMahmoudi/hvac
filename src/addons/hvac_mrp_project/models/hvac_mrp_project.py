@@ -87,8 +87,8 @@ class HvacMrpProject(models.Model):
         result = False
         if sale_order_line:
             result = sale_order_line.bom_id
-        if not result:
-            result = product.get_best_bom_for_forking()
+        if not result and product:
+            result = product.get_best_bom_for_forking(self)
 
         return result
 
