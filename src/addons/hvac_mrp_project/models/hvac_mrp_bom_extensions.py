@@ -22,26 +22,23 @@ class HvacMrpBomExtensions(MrpBom):
     def getUtils(self) -> HvacUtils:
         return self.env['hvac.utils']
 
-    def fork(self, project: HvacMrpProject):
+    def fork(self, project: HvacMrpProject, section=False):
         """ Froks a bom for a specific project """
-        #utils = self.getUtils()
-        #project_attr = utils.getProjectAttributeValue(project.code)
-        #product_tmpl: HvacProductTemplateExtensions = self.product_tmpl_id
         result = self.copy()
-        #self.flush()
-        #self.invalidate_cache()
         for line in result.bom_line_ids:
-            l:HvacMrpBomLineExtensions = line
-            product_template:HvacProductTemplateExtensions = l.product_tmpl_id
+            l: HvacMrpBomLineExtensions = line
+            product_template: HvacProductTemplateExtensions = l.product_tmpl_id
             if (product_template.is_forkable):
-                product_template.ensureProject(project)
-                product = product_template.getProjectVariant(project)
+                product_template.ensureProject(project, section=section)
+                product = product_template.getProjectVariant(
+                    project, section=section)
                 l.product_id = product
-                product_template.fork(project,l.child_bom_id)
+                product_template.fork(project, l.child_bom_id, section=section)
             else:
                 # product is not forkable
                 pass
         return result
+
 
 class HvacMrpBomLineExtensions(MrpBomLine):
     _inherit = 'mrp.bom.line'
