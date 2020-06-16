@@ -298,7 +298,7 @@ class ReportHvacBomExtensions(models.AbstractModel):
         project = self.get_project()
         if project:
             print ('we are on a project form')
-            bom = project.create_project_bom()
+            bom = project.getProjectBom(recreate=True)
             # bom_line = self.env['mrp.bom.line'].create([])
             # bom_line.product_id = project.sale_order_lines[0].product_id
             # bom_line.bom_id = bom_line.id

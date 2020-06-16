@@ -12,13 +12,13 @@
         Compelet mode:<field name="tag">mrp_bom_hvac_report</field>
       -->
       <field name="tag">mrp_bom_report</field>
-      
+
       <field name="context" eval="{'model': 'report.mrp.hvac.report_bom_structure'}" />
     </record>
     <record model="ir.ui.view" id="hvac_project_list">
       <field name="name">hvac_project_list</field>
       <field name="model">hvac.mrp.project</field>
-      
+
       <field name="arch" type="xml">
         <tree>
           <field name="name"/>
@@ -27,10 +27,13 @@
     </record>
     <!-- Form View -->
     <record model="ir.ui.view" id="hvac_mrp_project_form">
-      <field name="name">sandbox form</field>
+      <field name="name">Project From</field>
       <field name="model">hvac.mrp.project</field>
       <field name="arch" type="xml">
         <form>
+          <div class="oe_button_box" name="button_box">
+            <button name="%(action_report_mrp_hvac_bom)d" type="action" class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
+          </div>
           <group>
             <group>
               <field name="name"/>
@@ -46,8 +49,7 @@
             <group>
               <button name="%(hvac_mrp_project_addproduct_wizard_action)d" string="Add Product" type="action" />
               <button name="test" type="object" string="Test" />
-              <button name="%(action_report_mrp_hvac_bom)d" type="action"
-                                class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
+              <button name="%(action_report_mrp_hvac_bom)d" type="action" class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
             </group>
           </group>
           <notebook>
@@ -56,30 +58,19 @@
                 <tree string="Variants" editable="bottom">
                   <field name="name"/>
                   <field name="bom_id"/>
-                  <!-- <field name='product_tmpl_id'/> -->
-                  <!-- <field name='MFO_Name'/> -->
-                  <!-- <field name ='mf_order'/> -->
-
                 </tree>
               </field>
             </page>
-            <page name="MO" string="MO">
-              <field name="mf_order" widget="one2many">
-                <tree string="Variants" editable="bottom">
-                  <field name="name"/>
-                  <!-- <field name='product_tmpl_id'/> -->
-                  <!-- <field name='MFO_Name'/> -->
-                  <!-- <field name ='mf_order'/> -->
 
-                </tree>
-              </field>
-            </page>
             <page name="Tasks" string="tasks">
               <field name="task_ids" widget="one2many">
                 <tree string="Variants" editable="bottom">
                   <field name="name" />
                   <field name='manufacturing_order'/>
                   <field name="product_id"/>
+                  <field name="planned_start"/>
+                  <field name='planned_finish'/>
+                  <field name='purchase'/>
                 </tree>
               </field>
 
