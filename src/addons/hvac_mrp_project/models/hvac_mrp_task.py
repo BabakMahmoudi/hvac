@@ -6,7 +6,7 @@ if TYPE_CHECKING:
         HvacProductExtensions, HvacProductTemplateExtensions, HvacUtils, \
         HvacMrpBomExtensions, HvacMrpBomLineExtensions, HvacSaleOrderLineExtensions, \
         HvacSaleOrderExtensions, HvacStockMove, HvacStockMoveLine,HvacMrpProduction, \
-        HvacPurchaseOrderLine, HvacPurchaseOrder
+        HvacPurchaseOrderLine, HvacPurchaseOrder,RecalculateProjectWizard
 else:
     HvacBom = Any
     HvacMrpBomExtensions = models.Model
@@ -24,6 +24,7 @@ else:
     HvacMrpProduction = models.Model
     HvacPurchaseOrderLine = models.Model
     HvacPurchaseOrder = models.Model
+    RecalculateProjectWizard = models.Model
 
 class HvacMrpTask(models.Model):
     _name = 'hvac.mrp.task'
@@ -95,7 +96,7 @@ class HvacMrpTask(models.Model):
         
             
 
-    def recalculate(self):
+    def recalculate(self,options:RecalculateProjectWizard):
         
         self.task_type = self.get_default_task_type()
         self.name = self.get_default_name()

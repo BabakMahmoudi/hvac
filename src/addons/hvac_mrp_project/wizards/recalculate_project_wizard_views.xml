@@ -2,26 +2,23 @@
 <!-- Copyright 2017 Jairo Llopis <jairo.llopis@tecnativa.com>
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <record id="hvac_mrp_project_addproduct_wizard_form" model="ir.ui.view">
-        <field name="name">Add Product Wizard</field>
-        <field name="model">hvac.mrp.project.add.product.wizard</field>
+    <record id="hvac_mrp_project_recalculate_wizard_form" model="ir.ui.view">
+        <field name="name">Recalculate Project Wizard</field>
+        <field name="model">hvac.mrp.project.recalculate.project.wizard</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
                     <group>
-                        <field name="name" invisible="0" />
-                        <field name="product_tmpl_id" />
-                        <field name="product_id" />
-                        <field name="bom_id" />
+                        <field name="reschedule" invisible="0" />
                     </group>
                     <group>
                     </group>
                 </sheet>
                 <footer>
                     <button
-                        name="action_addProduct"
+                        name="action_recalculate"
                         type="object"
-                        string="Accept"
+                        string="Recalculate"
                         class="oe_highlight"
                     />
                     <button special="cancel" string="Cancel" />
@@ -29,9 +26,9 @@
             </form>
         </field>
     </record>
-    <record id="hvac_mrp_project_addproduct_wizard_action" model="ir.actions.act_window">
-        <field name="name">Add Products for this Customer</field>
-        <field name="res_model">hvac.mrp.project.add.product.wizard</field>
+    <record id="hvac_mrp_project_recalculate_wizard_action" model="ir.actions.act_window">
+        <field name="name">Recalculate Project</field>
+        <field name="res_model">hvac.mrp.project.recalculate.project.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>

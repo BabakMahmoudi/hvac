@@ -6,7 +6,8 @@ if TYPE_CHECKING:
         HvacProductExtensions, HvacProductTemplateExtensions, HvacUtils, \
         HvacMrpBomExtensions, HvacMrpBomLineExtensions, HvacSaleOrderLineExtensions, \
         HvacSaleOrderExtensions, HvacStockMove, HvacStockMoveLine, HvacMrpProduction, \
-        HvacPurchaseOrderLine, HvacPurchaseOrder, HvacMrpTask
+        HvacPurchaseOrderLine, HvacPurchaseOrder, HvacMrpTask, RecalculateProjectWizard, \
+        ReviseProjectWizard
 else:
     HvacBom = Any
     HvacMrpBomExtensions = models.Model
@@ -25,6 +26,8 @@ else:
     HvacPurchaseOrderLine = models.Model
     HvacPurchaseOrder = models.Model
     HvacMrpTask = models.Model
+    RecalculateProjectWizard = models.Model
+    ReviseProjectWizard = models.Model
 
 
 class HvacMrpProject(models.Model):
@@ -55,16 +58,77 @@ class HvacMrpProject(models.Model):
         #default=lambda self: self._default_deliverable_product_id(),
         readonly=False,)
 
+    def revise(self, opt:ReviseProjectWizard):
+        def get_moves() -> List[HvacStockMove]:
+            res = []
+            sale_order = self.getSaleOrder()
+            if sale_order:
+                for l in sale_order.order_line:
+                    line: HvacSaleOrderLineExtensions = l
+                    for m in line.move_ids:
+                        res.append(m)
+            return res
+
+        def process_production(production: HvacMrpProduction):
+            if production:
+                # task: HvacMrpTask = self.task_ids.get_task_for_production(
+                #     production, self)
+                # task.recalculate(options)
+                production._action_cancel()
+
+                for move in production.getRawComponentsMove():
+                    process_move(move)
+            return False
+
+        def process_purchase(purchase_line: HvacPurchaseOrderLine):
+            if purchase_line:
+                # task: HvacMrpTask = self.task_ids.get_task_for_purchase(
+                #     purchase_line, self)
+                # task.recalculate(options)
+                pass
+
+            return True
+
+        def process_move(move: HvacStockMove):
+            production = move.getCreatedProduction()
+            purchase_line = move.getCreatedPurchaseLine()
+            if production:
+                process_production(production)
+            if purchase_line:
+                process_purchase(purchase_line)
+            # process this production
+
+            return False
+
+        revise_sale_oder = True
+        bom: HvacMrpBomExtensions = self.getProjectBom(recreate=False)
+        revised_bom = bom.revise(forced=True)
+        self.bom_id = revised_bom
+        if revise_sale_oder:
+            new_sale = self.sale_order_id.copy()
+            self.sale_order_id.state = 'cancel'
+            for move in get_moves():
+                process_move(move)
+            self.sale_order_id = new_sale
+
+            
+            
+
+
+
+
+        return self
+
     def test(self):
         # product: HvacProductTemplateExtensions = self.env['product.template'].search(
         #     [('name', '=', 'Assembly 1')])
         # product.ensureProject(self)
 
-        bom:HvacMrpBomExtensions= self.getProjectBom(recreate=False)
+        bom: HvacMrpBomExtensions = self.getProjectBom(recreate=False)
         revised_bom = bom.revise(forced=True)
         self.bom_id = revised_bom
         new_sale = self.sale_order_id.copy()
-        self.sale_order_id.state='cancel'
+        self.sale_order_id.state = 'cancel'
         self.sale_order_id = new_sale
         # if (bom.state=='draft'):
         #     bom.state='confirmed'
@@ -72,7 +136,7 @@ class HvacMrpProject(models.Model):
         #     bom.revise()
         # self.getSaleOrder().action_confirm()
         #sale_order = self.getSaleOrder()
-        #self.Recalculate()
+        # self.Recalculate()
         # for _line in sale_order.order_line:
         #     line: HvacSaleOrderLineExtensions = _line
         #     line.move_ids
@@ -199,7 +263,7 @@ class HvacMrpProject(models.Model):
     def getTasks(self) -> HvacMrpTask:
         return self.task_ids
 
-    def Recalculate(self):
+    def Recalculate(self, options: RecalculateProjectWizard = False):
         """
             Recalculates the project.
         """
@@ -218,7 +282,7 @@ class HvacMrpProject(models.Model):
                 print('MO for {0}'.format(production.product_id.display_name))
                 task: HvacMrpTask = self.task_ids.get_task_for_production(
                     production, self)
-                task.recalculate()
+                task.recalculate(options)
 
                 for move in production.getRawComponentsMove():
                     process_move(move)
@@ -227,9 +291,10 @@ class HvacMrpProject(models.Model):
         def process_purchase(purchase_line: HvacPurchaseOrderLine):
             if purchase_line:
                 print('Purchase Line: {}'.format(purchase_line.name))
-                task:HvacMrpTask = self.task_ids.get_task_for_purchase(purchase_line, self)
-                task.recalculate()
-                
+                task: HvacMrpTask = self.task_ids.get_task_for_purchase(
+                    purchase_line, self)
+                task.recalculate(options)
+
             return True
 
         def process_move(move: HvacStockMove):
@@ -242,6 +307,10 @@ class HvacMrpProject(models.Model):
             # process this production
 
             return False
+
+        if not options:
+            options = self.env['hvac.mrp.project.recalculate.project.wizard'].create([
+            ])
         for move in get_moves():
             process_move(move)
             # production = move.getCreatedProduction()
@@ -323,4 +392,3 @@ class HvacMrpProject(models.Model):
             # record.reconciled_invoice_ids = reconciled_moves.filtered(lambda move: move.is_invoice())
             # record.has_invoices = bool(record.reconciled_invoice_ids)
             # record.reconciled_invoices_count = len(record.reconciled_invoice_ids)
-

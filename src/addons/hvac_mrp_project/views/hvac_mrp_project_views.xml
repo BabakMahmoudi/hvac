@@ -71,7 +71,8 @@
             <div class="oe_button_box" name="button_box">
               <button name="%(action_report_mrp_hvac_bom)d" type="action" class="oe_stat_button" icon="fa-bars" string="Structure &amp; Cost"/>
               <button name="%(hvac_mrp_project.hvac_project_task_list_action_window)d" type="action" class="oe_stat_button" icon="fa-bars" string="Tasks"/>
-              <button name="Recalculate" type="object" string="Recalculate" icon="fa-calculator" class="oe_stat_button"/>
+              <button name="%(hvac_mrp_project_recalculate_wizard_action)d" type="action" string="Recalculate" icon="fa-calculator" class="oe_stat_button"/>
+              <button name="%(hvac_mrp_project_revise_wizard_action)d" type="action" string="Revise" icon="fa-flag" class="oe_stat_button"/>
               <button name="test" type="object" string="Test" icon="fa-gear" class="oe_stat_button"/>
             </div>
             <div class="oe_title">

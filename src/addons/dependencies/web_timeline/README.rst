@@ -1,3 +1,16 @@
+This module is used in tasks timeline view. The module (web-timeline_13_0_200424_175843.zip) 
+is downloaded from:
+https://odoo-community.org/shop/download_product_zip/web-timeline-2812/web-timeline-13-0-23077/03AGdBq26YMY3fMq2XRTzbyk-giZGj-EbwF2CcFBemqJOmc9wjJtrC9IOpCvcMDMJwfdALQk4LymeA2Q5qMIgOliE2teaFtP4ikQG036jG9q25zJG-D1nfE1aCFWQKRxFSykXoUFXf_c5EQ85dfT1LLwZ9PA8dMNwde_nHfNDzxBOREyPyuvkBd1ignQGKNDff-lGuCYLRvqBjySPzhMwe4ISQ_O6Jac2jbq0ECEGVU1_0vPa_-Abzjj2500fLd_KH9Gd-fitl9bWhpxUNfCg7-YJyGCfeRDimVWrPKWEj4am21mW7TlhHYcGMWETy9nxKnE9H6c67vLPXDZ09XaT-Tbo_8T0b9_fQ9XGQBgYKodtACitUy6tQrNyD_giwiX_V36RU8kIg5ulQVM3GnQWY3Utn4InXd-wGIA
+
+Then we noticed that it usese a deprecated version of vis-timeline. 
+So we downloaded a previous version from (web_timeline-11.0.1.4.2.zip):
+https://apps.odoo.com/loempia/verify-download
+
+And replaced the files in:
+static/lib/vis-timeline/
+with the older version.
+
+
 ============
 Web timeline
 ============

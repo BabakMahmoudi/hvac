@@ -31,6 +31,8 @@
         'views/product_template_view.xml',
         'views/sale_order_task.xml',
         'wizards/add_product_wizard_view.xml',
+        'wizards/recalculate_project_wizard_views.xml',
+        'wizards/revise_project_views.xml',
         'views/hvac_mrp_task_views.xml',
         'views/hvac_mrp_project_views.xml',
         'report/mrp_report_bom_structure.xml'

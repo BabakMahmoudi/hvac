@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from hvac_mrp_project.models.hvac_stock_move import HvacStockMove, HvacStockMoveLine
     from hvac_mrp_project.models.hvac_mrp_bom_extensions import HvacMrpBomExtensions, HvacMrpBomLineExtensions
     from hvac_mrp_project.models.hvac_purchase_extensions import HvacPurchaseOrder, HvacPurchaseOrderLine
+    from hvac_mrp_project.wizards.reacalculate_project_wizard import RecalculateProjectWizard
+    from hvac_mrp_project.wizards.revise_project_wizard import ReviseProjectWizard
 
 else:
     HvacMrpProject = models.Model
@@ -47,5 +49,6 @@ else:
     PurchaseOrderLine = models.Model
     HvacPurchaseOrder = models.Model
     HvacPurchaseOrderLine = models.Model
-    
+    RecalculateProjectWizard = models.Model
+    ReviseProjectWizard = models.Model
 
