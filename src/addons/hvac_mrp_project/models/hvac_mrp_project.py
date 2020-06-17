@@ -60,10 +60,19 @@ class HvacMrpProject(models.Model):
         #     [('name', '=', 'Assembly 1')])
         # product.ensureProject(self)
 
-        self.getProjectBom(recreate=True)
+        bom:HvacMrpBomExtensions= self.getProjectBom(recreate=False)
+        revised_bom = bom.revise(forced=True)
+        self.bom_id = revised_bom
+        new_sale = self.sale_order_id.copy()
+        self.sale_order_id.state='cancel'
+        self.sale_order_id = new_sale
+        # if (bom.state=='draft'):
+        #     bom.state='confirmed'
+        # else:
+        #     bom.revise()
         # self.getSaleOrder().action_confirm()
         #sale_order = self.getSaleOrder()
-        self.Recalculate()
+        #self.Recalculate()
         # for _line in sale_order.order_line:
         #     line: HvacSaleOrderLineExtensions = _line
         #     line.move_ids
@@ -209,7 +218,7 @@ class HvacMrpProject(models.Model):
                 print('MO for {0}'.format(production.product_id.display_name))
                 task: HvacMrpTask = self.task_ids.get_task_for_production(
                     production, self)
-                
+                task.recalculate()
 
                 for move in production.getRawComponentsMove():
                     process_move(move)
@@ -218,7 +227,9 @@ class HvacMrpProject(models.Model):
         def process_purchase(purchase_line: HvacPurchaseOrderLine):
             if purchase_line:
                 print('Purchase Line: {}'.format(purchase_line.name))
-                self.task_ids.get_task_for_purchase(purchase_line, self)
+                task:HvacMrpTask = self.task_ids.get_task_for_purchase(purchase_line, self)
+                task.recalculate()
+                
             return True
 
         def process_move(move: HvacStockMove):

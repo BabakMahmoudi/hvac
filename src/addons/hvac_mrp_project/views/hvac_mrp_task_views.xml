@@ -11,12 +11,38 @@
       </field>
     </record>
 
+    <record id="view_mrp_tasks_gantt" model="ir.ui.view">
+      <field name="name">mrp.tasks.gantt</field>
+      <field name="model">hvac.mrp.task</field>
+      <field name="type">timeline</field>
+      <field name="arch" type="xml">
+        <timeline date_stop="planned_finish" date_start="planned_start" default_group_by="parent_task">
+          <field name="name"/>
+          <field name="planned_start"/>
+          <field name="planned_finish"/>
+          <field name="responsible_id"/>
+          <field name="task_type"/>
+          <field name="product_id"/>
+          <field name="parent_task"/>
+
+          <templates>
+            <div t-name="timeline-item">
+              <div t-esc="record.name"/>
+              <!-- Assigned to: -->
+              <!-- <span t-esc="record.user_id[1]"/> -->
+            </div>
+          </templates>
+          <hr/>
+        </timeline>
+      </field>
+    </record>
+
     <record model="ir.actions.act_window" id="hvac_project_task_list_action_window">
       <field name="name">Manufacturing Tasks</field>
       <field name="res_model">hvac.mrp.task</field>
       <!-- <field name="context">{'search_default_product_tmpl_id': [active_id], 'default_product_tmpl_id': active_id, 'create': False}</field> -->
       <field name="domain">[["project_id","=",active_id]]</field>
-      <field name="view_mode">tree,form</field>
+      <field name="view_mode">tree,timeline,form</field>
     </record>
   </data>
 </odoo>

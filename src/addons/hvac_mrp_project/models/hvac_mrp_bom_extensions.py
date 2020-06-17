@@ -18,13 +18,41 @@ else:
 
 class HvacMrpBomExtensions(MrpBom):
     _inherit = 'mrp.bom'
+    state = fields.Selection([
+        ('draft', 'Draft'), ('confirmed', 'Confirmed'), ('done', 'Done'),('retired','Retired')],
+        default='draft',
+        string='Status',
+        copy = True
+    )
+    revision = fields.Integer(string='Revision', default=0,copy=True)
 
     def getUtils(self) -> HvacUtils:
         return self.env['hvac.utils']
 
+    def revise(self,forced=False):
+        res = self
+        if self.state !='draft' or forced:
+            res:HvacMrpBomExtensions = self.copy()
+            self.write({
+                'state': 'retired',
+                'active':False
+                })
+            res.revision = res.revision + 1
+            res.state = 'draft'
+            res.code = 'Rev ({})'.format(res.revision)
+            for _line in self.bom_line_ids:
+                line:HvacMrpBomLineExtensions = _line
+                bom:HvacMrpBomExtensions =  line.child_bom_id
+                if bom:
+                    bom.revise(forced=True)
+                
+
+        return res
+
     def fork(self, project: HvacMrpProject, section=False):
         """ Froks a bom for a specific project """
         result = self.copy()
+        result.revision = 0
         for line in result.bom_line_ids:
             l: HvacMrpBomLineExtensions = line
             product_template: HvacProductTemplateExtensions = l.product_tmpl_id

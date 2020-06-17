@@ -30,11 +30,17 @@ class HvacMrpTask(models.Model):
     name = fields.Char()
     project_id = fields.Many2one("hvac.mrp.project")
     sequence = fields.Integer(string='Sequence', default=10)
+    TYPE_MO = 'MO'
+    TYPE_PO = 'PO'
+    TYPE_EN = 'EN'
+    TYPE_LO = 'LO'
+    TYPE_OT = 'OT'
     task_type = fields.Selection(
-        [('MO', 'Manufacturing'), ('PO', 'Purchase'), ('EN', 'Engineering'), 
-        ('LO', 'Logistic'), ('OT', 'Other')],
-        default='OT',
+        [(TYPE_MO, 'Manufacturing'), (TYPE_PO, 'Purchase'), (TYPE_EN, 'Engineering'), 
+        (TYPE_LO, 'Logistic'), (TYPE_OT, 'Other')],
+        default='',
         String="Type")
+
     manufacturing_order = fields.Many2one('mrp.production')
     product_id = fields.Many2one('product.product')
     purchase = fields.Many2one("purchase.order.line")
@@ -43,7 +49,10 @@ class HvacMrpTask(models.Model):
     responsible_id = fields.Many2one(
         'res.users', string='Responsible', default=lambda self: self.env.uid, company_dependent=True, check_company=True,
         help="This user will be responsible of the next activities related to logistic operations for this product.")
+    parent_task = fields.Many2one('hvac.mrp.task')
 
+    def get_manufacturing_order(self)->HvacMrpProduction:
+        return self.manufacturing_order
     def get_task_for_purchase(self , PO:HvacPurchaseOrderLine , project):
         result = self.env[self._name].search([
             ('purchase', '=', PO.id),('project_id','=',project.id)])
@@ -68,7 +77,34 @@ class HvacMrpTask(models.Model):
             'name' : 'manufacture : {}'.format(MO.name)
             }) 
         return result 
+
+    def get_default_name(self):
+        res =  ''
+        if self.manufacturing_order:
+            res = 'Manufacture {}'.format(self.get_manufacturing_order().product_tmpl_id.name)
+        if self.purchase:
+            res = 'Purchase {}'.format(self.purchase.name)
+        return res        
+    
+    def get_default_task_type(self):
+        if self.manufacturing_order:
+            return self.TYPE_MO
+        if self.purchase:
+            return self.TYPE_PO
+        return self.TYPE_OT
         
+            
+
+    def recalculate(self):
+        
+        self.task_type = self.get_default_task_type()
+        self.name = self.get_default_name()
+        self.parent_task = self
+
+
+        return self
+
+
         
 
 
