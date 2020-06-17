@@ -1,12 +1,12 @@
 from odoo import models, fields, api
-from typing import TYPE_CHECKING, Any,List
+from typing import TYPE_CHECKING, Any, List
 
 if TYPE_CHECKING:
     from hvac_mrp_project.models.hvac_imports import \
         HvacProductExtensions, HvacProductTemplateExtensions, HvacUtils, \
         HvacMrpBomExtensions, HvacMrpBomLineExtensions, HvacSaleOrderLineExtensions, \
-        HvacSaleOrderExtensions, HvacStockMove, HvacStockMoveLine,HvacMrpProduction, \
-        HvacPurchaseOrderLine, HvacPurchaseOrder
+        HvacSaleOrderExtensions, HvacStockMove, HvacStockMoveLine, HvacMrpProduction, \
+        HvacPurchaseOrderLine, HvacPurchaseOrder, HvacMrpTask
 else:
     HvacBom = Any
     HvacMrpBomExtensions = models.Model
@@ -24,12 +24,13 @@ else:
     HvacMrpProduction = models.Model
     HvacPurchaseOrderLine = models.Model
     HvacPurchaseOrder = models.Model
+    HvacMrpTask = models.Model
 
 
 class HvacMrpProject(models.Model):
     _name = "hvac.mrp.project"
     _description = 'Manufacturing Project'
-
+    numbers = [1, 2, 3]
     name = fields.Char("Name")
     code = fields.Char(string='Code', required=True, copy=False, readonly=False,
                        index=True,
@@ -46,8 +47,7 @@ class HvacMrpProject(models.Model):
     sale_order_lines = fields.One2many(
         'sale.order.line', compute='_compute_sale_order_lines', readonly=True)
 
-    
-    task_ids = fields.One2many('hvac.mrp.tasks', 'project_id')
+    task_ids = fields.One2many('hvac.mrp.task', 'project_id')
     bom_id = fields.Many2one('mrp.bom', "Bill of Materials")
     sale_order_id = fields.Many2one('sale.order')
     deliverable_product_id = fields.Many2one(
@@ -59,7 +59,7 @@ class HvacMrpProject(models.Model):
         # product: HvacProductTemplateExtensions = self.env['product.template'].search(
         #     [('name', '=', 'Assembly 1')])
         # product.ensureProject(self)
-        
+
         self.getProjectBom(recreate=True)
         # self.getSaleOrder().action_confirm()
         #sale_order = self.getSaleOrder()
@@ -75,6 +75,9 @@ class HvacMrpProject(models.Model):
         self.deliverable_product_id = self.getProjectDeliverableProduct()
         self.name = self.code
         return False
+
+    def get_numbers(self):
+        return [1, 2, 3]
 
     def getUtils(self) -> HvacUtils:
         return self.env['hvac.utils']
@@ -184,15 +187,8 @@ class HvacMrpProject(models.Model):
         print("SalerOrder State Changed: {}".format(new_state))
         pass
 
-    # def get_task(self , MO):
-    #     result = self.env["hvac.mrp.tasks"].search([
-    #         ('manufacturing_order', '=', MO.id)])
-    #     if not result :
-    #         result = self.env["hvac.mrp.tasks"].create({
-    #         'manufacturing_order': MO.id ,
-    #         'project_id' : self.id
-    #         }) 
-    #     return result 
+    def getTasks(self) -> HvacMrpTask:
+        return self.task_ids
 
     def Recalculate(self):
         """
@@ -203,26 +199,29 @@ class HvacMrpProject(models.Model):
             sale_order = self.getSaleOrder()
             if sale_order:
                 for l in sale_order.order_line:
-                    line:HvacSaleOrderLineExtensions = l
+                    line: HvacSaleOrderLineExtensions = l
                     for m in line.move_ids:
                         res.append(m)
             return res
 
-        def process_production(production:HvacMrpProduction):
+        def process_production(production: HvacMrpProduction):
             if production:
-                print('MO for {0}'.format(production.product_id.display_name))    
-                self.task_ids.get_task_for_production(production , self)
+                print('MO for {0}'.format(production.product_id.display_name))
+                task: HvacMrpTask = self.task_ids.get_task_for_production(
+                    production, self)
+                
+
                 for move in production.getRawComponentsMove():
                     process_move(move)
             return False
-        
-        def process_purchase(purchase_line:HvacPurchaseOrderLine):
+
+        def process_purchase(purchase_line: HvacPurchaseOrderLine):
             if purchase_line:
                 print('Purchase Line: {}'.format(purchase_line.name))
-                self.task_ids.get_task_for_purchase(purchase_line , self)
+                self.task_ids.get_task_for_purchase(purchase_line, self)
             return True
 
-        def process_move(move:HvacStockMove):
+        def process_move(move: HvacStockMove):
             production = move.getCreatedProduction()
             purchase_line = move.getCreatedPurchaseLine()
             if production:
@@ -231,7 +230,6 @@ class HvacMrpProject(models.Model):
                 process_purchase(purchase_line)
             # process this production
 
-
             return False
         for move in get_moves():
             process_move(move)
@@ -239,8 +237,6 @@ class HvacMrpProject(models.Model):
             # print(production.ids)
 
         return False
-
-        
 
     def addProduct(self, product_tmpl_id: HvacProductTemplateExtensions, bom_id: HvacMrpBomExtensions):
         """
@@ -276,7 +272,6 @@ class HvacMrpProject(models.Model):
             'bom_id': bom.id if bom else False
         }])
         return result
-
 
     @api.model
     def create(self, vals):
@@ -318,51 +313,3 @@ class HvacMrpProject(models.Model):
             # record.has_invoices = bool(record.reconciled_invoice_ids)
             # record.reconciled_invoices_count = len(record.reconciled_invoice_ids)
 
-
-
-
-class HvacProductionTasks(models.Model):
-    _name = "hvac.mrp.tasks"
-
-    name = fields.Char()
-    project_id = fields.Many2one("hvac.mrp.project")
-    manufacturing_order = fields.Many2one('mrp.production')
-    product_id = fields.Many2one('product.product')
-    purchase = fields.Many2one("purchase.order.line")
-    planned_start = fields.Date()
-    planned_finish = fields.Date()
-
-    def get_task_for_purchase(self , PO:HvacPurchaseOrderLine , project):
-        result = self.env["hvac.mrp.tasks"].search([
-            ('purchase', '=', PO.id),('project_id','=',project.id)])
-        if not result :
-            result = self.env["hvac.mrp.tasks"].create({
-            'purchase': PO.id ,
-            'project_id' : project.id,
-            'name' : PO.name
-            
-            }) 
-        return result 
-    def get_task_for_production(self , MO:HvacMrpProduction , project):
-        result = self.env["hvac.mrp.tasks"].search([
-            ('manufacturing_order', '=', MO.id),('project_id','=',project.id)])
-        if not result :
-            result = self.env["hvac.mrp.tasks"].create({
-            'manufacturing_order': MO.id ,
-            'project_id' : project.id,
-            'planned_start' : MO.date_planned_start,
-            'planned_finish' : MO.date_planned_finished,
-            'name' : 'manufacture : {}'.format(MO.name)
-            }) 
-        return result 
-        
-        
-
-
-
-
-# class HvacMrpProjectProductLine(models.Model):
-#     _name = "hvac.mrp.project.product.line"
-#     project_id = fields.Many2one("hvac.mrp.project")
-
-#     product
