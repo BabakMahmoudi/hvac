@@ -6,7 +6,16 @@
       <field name="model">hvac.mrp.task</field>
       <field name="arch" type="xml">
         <tree>
-          <field name="name"/>
+          <field name="name" />
+          <field name="start"/>
+          <field name="planned_start" invisible="0"/>
+          <field name='finish'/>
+          <field name='deadline'/>
+          <field name='planned_finish' invisible="0"/>
+          <field name='manufacturing_order' invisible="1"/>
+          <field name="product_id" invisible="0" />
+          <field name="responsible_id" />
+          <field name='purchase' invisible="1" />
         </tree>
       </field>
     </record>
@@ -16,15 +25,18 @@
       <field name="model">hvac.mrp.task</field>
       <field name="type">timeline</field>
       <field name="arch" type="xml">
-        <timeline date_stop="planned_finish" date_start="planned_start" default_group_by="parent_task">
+        <timeline date_stop="finish" date_start="start" default_group_by="parent_task" dependency_arrow="predecessor_ids">
           <field name="name"/>
+          <field name="start"/>
+          <field name="duration"/>
+          <field name="finish"/>
+
           <field name="planned_start"/>
           <field name="planned_finish"/>
           <field name="responsible_id"/>
           <field name="task_type"/>
           <field name="product_id"/>
           <field name="parent_task"/>
-
           <templates>
             <div t-name="timeline-item">
               <div t-esc="record.name"/>

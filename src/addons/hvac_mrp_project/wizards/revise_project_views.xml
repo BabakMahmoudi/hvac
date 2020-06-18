@@ -8,23 +8,52 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                <p>
-                    This action will make a new revision of the project 
-                    'Bill of Materials' 
-                </p>
+                    <h4>
+                    This action will make a new revision of the project base on
+                    follwoing settings:
+                    </h4>
+                        <div>
+                            <field name="revise_sale_order"/>
+                            <strong>Revise Sale: </strong>
+                            Revises the sale order...
+                        </div>
+                        <div>
+                            <field name="revise_bom"/>
+                            <strong>Revise BoM: </strong>
+                            Creates a new revision for the project Bills of Materials 
+                            (including all sub-components) to keep previous bom as a 
+                            refernce record.
+                        </div>
+                        <div>
+                            <field name="reschedule"/>
+                            <strong>Reschdule Tasks: </strong>
+                            Reschedules Project Tasks so that the unfinished tasks are
+                            moved to future.
+                        </div>
+                        <div>
+                            <field name="replan"/>
+                            <strong>Replan: </strong>
+                            Saves current dates a planned dates so that a new baseline
+                            plan is created.
+                        </div>
+                        <div>
+                            <strong>Status Date: </strong>
+                            <field name="status_date"/>
+                            Date used as current date in task scheduling.
+                        </div>
+                        <div>
+                            <strong>Reason: </strong>
+                            <field name="reason"/>
+                            Reason for this revison.
+                        </div>
                     <group>
-                        <field name="reschedule" invisible="0" />
+
                     </group>
                     <group>
                     </group>
                 </sheet>
                 <footer>
-                    <button
-                        name="action_revise"
-                        type="object"
-                        string="Revise"
-                        class="oe_highlight"
-                    />
+                    <button name="action_revise" type="object" string="Revise" class="oe_highlight" />
                     <button special="cancel" string="Cancel" />
                 </footer>
             </form>

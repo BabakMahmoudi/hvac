@@ -1,10 +1,32 @@
 from odoo import models, fields, api
+from datetime import datetime
 
 
 class ReviseProjectWizard(models.TransientModel):
     _name = "hvac.mrp.project.revise.project.wizard"
 
-    reschedule= fields.Boolean(string="Reschedule",help="help")
+    reschedule= fields.Boolean(string="Reschedule",
+        default= False,
+        help="help")
+    revise_sale_order = fields.Boolean(
+        string="Revise Sale Odrder",
+        default= False,
+        help="If set the current sale will be canceled and a new sale order is created.")
+    revise_bom = fields.Boolean(
+        string="Revise BoM",
+        default= False,
+        help="If set the current sale will be canceled and a new sale order is created."
+        )
+    replan= fields.Boolean(string="Replan",
+        default= False,
+        help="help")
+
+    status_date = fields.Date(
+        string='Status Date',
+        default = datetime.today())
+    
+    reason = fields.Char()
+    
 
 
 
