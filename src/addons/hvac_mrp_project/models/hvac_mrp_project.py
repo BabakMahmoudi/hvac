@@ -120,6 +120,13 @@ class HvacMrpProject(models.Model):
 
             return self
 
+        def reorder_by_date():
+            sorted = self.task_ids.sorted(lambda x: x.start)
+            i = 1
+            for t in sorted:
+                t.sequence = i *10
+                i = i + 1
+            return True
         
         revise_dates()
         revise_sale_oder = opt.revise_sale_order
@@ -140,6 +147,7 @@ class HvacMrpProject(models.Model):
             for _task in tasks:
                 task:HvacMrpTask = _task
                 task.reschedule(opt)
+        reorder_by_date()
 
             
             

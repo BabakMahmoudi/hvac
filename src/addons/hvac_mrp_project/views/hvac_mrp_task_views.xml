@@ -53,8 +53,9 @@
       <field name="name">Manufacturing Tasks</field>
       <field name="res_model">hvac.mrp.task</field>
       <!-- <field name="context">{'search_default_product_tmpl_id': [active_id], 'default_product_tmpl_id': active_id, 'create': False}</field> -->
+      <field name="context">{'order': 'start'}</field>
       <field name="domain">[["project_id","=",active_id]]</field>
-      <field name="view_mode">tree,timeline,form</field>
+      <field name="view_mode">timeline,tree,form</field>
     </record>
   </data>
 </odoo>

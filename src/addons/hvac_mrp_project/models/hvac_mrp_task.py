@@ -180,7 +180,12 @@ class HvacMrpTask(models.Model):
                 self.finish = self.start + _dur
 
         return self
-
+    
+    def name_get(self):
+        result = []
+        for rec in self:
+            result.append((rec.id,'{} {}'.format(rec.sequence, rec.name)))
+        return result
 
     def revise(self, options: ReviseProjectWizard):
         """
