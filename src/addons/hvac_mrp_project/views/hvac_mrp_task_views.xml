@@ -30,6 +30,7 @@
           <field name="start"/>
           <field name="duration"/>
           <field name="finish"/>
+          <field name="percent_complete"/>
 
           <field name="planned_start"/>
           <field name="planned_finish"/>
@@ -39,7 +40,9 @@
           <field name="parent_task"/>
           <templates>
             <div t-name="timeline-item">
-              <div t-esc="record.name"/>
+              <span t-esc="record.name"/> 
+              (<span  t-esc="record.percent_complete" />%)
+              <!-- t-field-options='{"widget": "progressbar" }'/> -->
               <!-- Assigned to: -->
               <!-- <span t-esc="record.user_id[1]"/> -->
             </div>

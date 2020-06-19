@@ -31,6 +31,9 @@ else:
     ReviseProjectWizard = models.Model
     HvacMrpProject = models.Model
 
+SECONDS_PER_DAY = 60*60*24
+MINIMUM_TASK_DURATION = 1
+
 
 class HvacMrpTask(models.Model):
     _name = 'hvac.mrp.task'
@@ -52,6 +55,7 @@ class HvacMrpTask(models.Model):
 
     manufacturing_order = fields.Many2one('mrp.production')
     product_id = fields.Many2one('product.product')
+    stock_move_id = fields.Many2one('stock.move')
     purchase = fields.Many2one("purchase.order.line")
     planned_start = fields.Datetime()
     planned_finish = fields.Datetime()
@@ -59,6 +63,15 @@ class HvacMrpTask(models.Model):
     finish = fields.Datetime()
     deadline = fields.Datetime()
     duration = fields.Float()
+    manual_duration = fields.Float()
+    price = fields.Float()
+    percent_complete = fields.Integer(
+        string="% Complete",
+        default=0,)
+
+    manual_percent_complete = fields.Integer(
+        string="% Complete",
+        default=0,)
     responsible_id = fields.Many2one(
         'res.users', string='Responsible', default=lambda self: self.env.uid, company_dependent=True, check_company=True,
         help="This user will be responsible of the next activities related to logistic operations for this product.")
@@ -73,19 +86,20 @@ class HvacMrpTask(models.Model):
     def get_manufacturing_order(self) -> HvacMrpProduction:
         return self.manufacturing_order
 
-    def get_task_for_purchase(self, PO: HvacPurchaseOrderLine, project):
+    def get_task_for_purchase(self, PO: HvacPurchaseOrderLine, project, stock_move):
         result = self.env[self._name].search([
             ('purchase', '=', PO.id), ('project_id', '=', project.id)])
         if not result:
             result = self.env[self._name].create({
                 'purchase': PO.id,
                 'project_id': project.id,
+                'stock_move_id': stock_move.id
                 # 'name' : PO.name
 
             })
         return result
 
-    def get_task_for_production(self, MO: HvacMrpProduction, project):
+    def get_task_for_production(self, MO: HvacMrpProduction, project, stock_move):
         result = self.env[self._name].search([
             ('manufacturing_order', '=', MO.id), ('project_id', '=', project.id)])
         if not result:
@@ -93,10 +107,23 @@ class HvacMrpTask(models.Model):
                 'manufacturing_order': MO.id,
                 'project_id': project.id,
                 'planned_start': MO.date_planned_start,
+                'stock_move_id': stock_move.id,
                 'planned_finish': MO.date_planned_finished,
                 # 'name' : 'manufacture : {}'.format(MO.name)
             })
         return result
+
+    def get_level(self):
+        res = len(self.predecessor_ids) if self.predecessor_ids else 0
+        return res
+
+    def get_weight(self):
+        res = self.price
+        _PURCHASE_FACTOR = 0.00001
+        if self.get_purchase_oder_line():
+            res = self.price *_PURCHASE_FACTOR
+
+        return res
 
     def get_default_name(self):
         res = ''
@@ -120,6 +147,9 @@ class HvacMrpTask(models.Model):
     def get_project(self) -> HvacMrpProject:
         return self.project_id
 
+    def get_stock_move(self) -> HvacStockMove:
+        return self.stock_move_id
+
     def get_planned_start(self, recompute=True):
         res = self.planned_start
         if not res and recompute:
@@ -139,14 +169,15 @@ class HvacMrpTask(models.Model):
             if not res:
                 res = self.get_project().get_finish_date()
         return res
-    
+
     def get_expected_duration(self, recompute=True):
         res = self.duration
         if not res and recompute:
             mo: HvacMrpProduction = self.manufacturing_order
             if mo:
-                res = (mo.date_planned_finished - mo.date_planned_start).total_seconds()/86400
-            if not res or res<.5:
+                res = (mo.date_planned_finished -
+                       mo.date_planned_start).total_seconds()/86400
+            if not res or res < .5:
                 res = 1
         return res
 
@@ -168,23 +199,124 @@ class HvacMrpTask(models.Model):
             return latest[0]
         return False
 
+    def get_bom_price(self):
+        res = False
+        qty = 1.0
+        if self.get_stock_move() and self.get_stock_move().product_qty:
+            qty = self.get_stock_move().product_qty
+        if self.get_manufacturing_order():
+            bom = self.get_manufacturing_order().bom_id
+            if bom:
+                model = self.env['report.mrp.hvac.report_bom_structure'].create([
+                ])
+                report = model._get_bom(bom_id=bom.id, line_qty=qty)
+                if report:
+                    res = report.get('total', False)
+        return res
+
+    def get_purchase_price(self):
+        qty = 1.0
+        if self.get_stock_move() and self.get_stock_move().product_qty:
+            qty = self.get_stock_move().product_qty
+        res = False
+        if self.get_purchase_oder_line():
+            uom = self.get_purchase_oder_line().product_uom
+            product = self.get_purchase_oder_line().product_id
+            company = product.company_id or self.env.company
+            res = product.uom_id._compute_price(product.with_context(
+                force_company=company.id).standard_price, uom)*qty
+        return res
+
+    def update_price(self, opt: ReviseProjectWizard):
+        self.price = False
+        p = self.get_bom_price()
+        if not p:
+            p = self.get_purchase_price()
+        self.price = p
+        return self
+
+    def update_progress(self, opt: ReviseProjectWizard):
+        def compute_percent_complete():
+            res = 0.0
+            total = 0.0
+            total_weight = 0.0
+            for task in self.predecessor_ids:
+
+                total_weight = total_weight + task.get_weight()
+                total = total + task.get_weight() * task.percent_complete
+            total_weight = total_weight + self.get_weight()
+            total = total + self.get_weight() * self.percent_complete
+            if total_weight < 1:
+                total_weight = 1
+            res = total/total_weight
+            return res
+        # self.update_price(opt)
+        # price = self.get_bom_price()
+        if self.manual_percent_complete:
+            # user has manually entered a pct complete value
+            # we should take care od it here
+            self.percent_complete = self.manual_percent_complete
+        _pct_complete = self.percent_complete
+        if self.get_stock_move() and self.get_stock_move().state in ['assigned', 'done']:
+            _pct_complete = 100
+        else:
+            _pct_complete = compute_percent_complete()
+
+        self.percent_complete = _pct_complete
+        # Reset manual percent complete since
+        # we have taken care of it
+        self.manual_percent_complete = False
+
+        return self
+
     def reschedule(self, opt: ReviseProjectWizard):
         _predecessor = self.get_latest_predecessor()
         if not self.start or not self.finish:
             return self
-        # _dur = self.get_expected_duration()
+        if self.manual_duration and self.manual_duration > MINIMUM_TASK_DURATION:
+            # user has entered a duration value that
+            # we should take care of it here
+            #if (self.finish-self.start).total_seconds()/SECONDS_PER_DAY < self.manual_duration:
+            self.finish = self.start + timedelta(days=self.manual_duration)
         _dur = self.finish - self.start
         if _predecessor:
             if self.start < (_predecessor.finish + timedelta(days=1)):
                 self.start = _predecessor.finish + timedelta(days=1)
                 self.finish = self.start + _dur
 
+        self.duration = (
+            self.finish - self.start).total_seconds()/SECONDS_PER_DAY
+        # reset the manual duration since we
+        # have taken care of it
+        self.manual_duration = False
+
         return self
-    
+
+    def recalculate(self, opt: ReviseProjectWizard):
+        if not self.start or not self.finish:
+            return self
+        if self.manual_duration and self.manual_duration > MINIMUM_TASK_DURATION:
+            # user has entered a duration value that
+            # we should take care of it here
+            #if (self.finish-self.start).total_seconds()/SECONDS_PER_DAY < self.manual_duration:
+            self.finish = self.start + timedelta(days=self.manual_duration)
+        _dur = self.finish - self.start
+        # if _predecessor:
+        #     if self.start < (_predecessor.finish + timedelta(days=1)):
+        #         self.start = _predecessor.finish + timedelta(days=1)
+        #         self.finish = self.start + _dur
+        self.duration = (
+            self.finish - self.start).total_seconds()/SECONDS_PER_DAY
+        # reset the manual duration since we
+        # have taken care of it
+        self.manual_duration = False
+
+        return self
+
     def name_get(self):
         result = []
         for rec in self:
-            result.append((rec.id,'{} {}'.format(rec.sequence, rec.name)))
+            result.append((rec.id, '{} {}'.format(rec.sequence, rec.name)))
         return result
 
     def revise(self, options: ReviseProjectWizard):
@@ -208,22 +340,24 @@ class HvacMrpTask(models.Model):
         def revise_dates():
             _start = self.get_start()
             _finish = self.get_finish_date()
-            _duration = self.get_expected_duration()
-            if _duration< (_finish-_start).total_seconds()/86400:
-                _duration = (_finish-_start).total_seconds()/86400
 
+            if ((_finish - _start).total_seconds()/SECONDS_PER_DAY) < MINIMUM_TASK_DURATION:
+                _finish = _start + timedelta(days=MINIMUM_TASK_DURATION)
+            _duration = (_finish - _start).total_seconds()/SECONDS_PER_DAY
+            # if _finish < _start + timedelta(days=_duration):
+            #     _finish = _start+timedelta(days=_duration)
+
+            # _duration = (_finish-_start).total_seconds()/SECONDS_PER_DAY
+            # if _duration<MINIMUM_TASK_DURATION:
+            #     _d
+            # _duration = self.get_duration()
+            # _duration = self.get_expected_duration()
+            # if _duration < (_finish-_start).total_seconds()/86400:
+            #     _duration = (_finish-_start).total_seconds()/86400
             _planned_start = self.planned_start
             _planned_finish = self.planned_finish
-            # _start = self.compute_start_date()
-            # if options.reschedule:
-            #     _start = self.compute_start_date()
-            #     _finish = self.compute_finish_date()
-            # predecessor = get_latest_predecessor()
-            # if predecessor:
-            #     _start = predecessor.finish
-            if _finish < _start + timedelta(days=_duration):
-                _finish = _start+timedelta(days=_duration)
-            if not self.duration or self.duration!= _duration:
+
+            if not self.duration:  # or self.duration != _duration:
                 self.duration = _duration
             if not _planned_start or options.replan:
                 _planned_start = _start
@@ -260,13 +394,37 @@ class HvacMrpTask(models.Model):
             self.active = False
         return self
 
-    def recalculate(self, options: RecalculateProjectWizard):
-
+    def recalculate_deprecated(self, options: RecalculateProjectWizard):
         self.task_type = self.get_default_task_type()
         self.name = self.get_default_name()
         self.parent_task = self
-
         return self
+
+    @api.onchange('duration')
+    def on_duration_change(self):
+        self.manual_duration = self.duration
+        # res =[]
+        # for record in self:
+        #     record.manual_duration = record.duration
+        #     res.append({'manual_duraion':1})
+        # if self.duration:
+        #     if self.duration > MINIMUM_TASK_DURATION:
+        #         self.manual_duration = self.duration
+        #         self.write({'manual_duration':self.duration})
+        #     # print('state changed {}'.format(+ self.duration))
+        #     #pass
+        #return True
+
+    # @api.onchange('percent_complete')
+    # def on_percent_complete_change(self):
+    #     self.manual_percent_complete = self.percent_complete
+        
+        # if self.duration:
+        #     if self.duration > MINIMUM_TASK_DURATION:
+        #         self.manual_duration = self.duration
+        #     #print('state changed {}'.format(+ self.duration))
+        #     pass
+        #return True
 
 
 # class HvacMrpProjectProductLine(models.Model):

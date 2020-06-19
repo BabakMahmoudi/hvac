@@ -48,6 +48,9 @@ class HvacMrpProject(models.Model):
         #domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
     )
 
+    test_pct = fields.Integer(default=5)
+    test_max = fields.Integer(default=100)
+
     sale_order_lines = fields.One2many(
         'sale.order.line', compute='_compute_sale_order_lines', readonly=True)
 
@@ -63,8 +66,15 @@ class HvacMrpProject(models.Model):
     start = fields.Datetime()
     finish = fields.Datetime()
     deadline = fields.Datetime()
+    percent_complete = fields.Integer(
+        default=0,
+    )
+    planned_percent_complete = fields.Integer(
 
-    def revise(self, opt:ReviseProjectWizard):
+    )
+    price = fields.Float()
+
+    def revise(self, opt: ReviseProjectWizard):
         def get_moves() -> List[HvacStockMove]:
             res = []
             sale_order = self.getSaleOrder()
@@ -75,26 +85,27 @@ class HvacMrpProject(models.Model):
                         res.append(m)
             return res
 
-        def process_production(production: HvacMrpProduction):
+        def process_production(production: HvacMrpProduction, stock_move):
             task = False
             if production:
                 if opt.revise_sale_order:
                     production._action_cancel()
                 task: HvacMrpTask = self.task_ids.get_task_for_production(
-                    production, self)
+                    production, self, stock_move)
                 task.revise(opt)
                 for move in production.getRawComponentsMove():
                     move_task = process_move(move)
                     if move_task:
                         if not task.id in move_task.successor_ids.ids:
-                            move_task.successor_ids = move_task.successor_ids.concat(task)
+                            move_task.successor_ids = move_task.successor_ids.concat(
+                                task)
             return task
 
-        def process_purchase(purchase_line: HvacPurchaseOrderLine):
+        def process_purchase(purchase_line: HvacPurchaseOrderLine, stock_move):
             task = False
             if purchase_line:
                 task: HvacMrpTask = self.task_ids.get_task_for_purchase(
-                     purchase_line, self)
+                    purchase_line, self, stock_move)
                 task.revise(opt)
 
             return task
@@ -102,11 +113,12 @@ class HvacMrpProject(models.Model):
         def process_move(move: HvacStockMove):
             production = move.getCreatedProduction()
             purchase_line = move.getCreatedPurchaseLine()
-            res:HvacMrpTask = False
+
+            res: HvacMrpTask = False
             if production:
-                res = process_production(production)
+                res = process_production(production, move)
             if purchase_line:
-                res = process_purchase(purchase_line)
+                res = process_purchase(purchase_line, move)
             # process this production
 
             return res
@@ -121,13 +133,55 @@ class HvacMrpProject(models.Model):
             return self
 
         def reorder_by_date():
-            sorted = self.task_ids.sorted(lambda x: x.start)
-            i = 1
-            for t in sorted:
-                t.sequence = i *10
-                i = i + 1
+            try:
+                sorted = self.task_ids.sorted(lambda x: x.start)
+                i = 1
+                for t in sorted:
+                    t.sequence = i * 10
+                    i = i + 1
+            except:
+                pass
             return True
-        
+
+        def product_id_in_sale_oder_lines(product_id):
+
+            for l in self.sale_order_lines:
+                if l.product_id.id==product_id:
+                    return True
+
+
+            return False
+        def update_price():
+            total = 0.0
+            tasks = self.task_ids.sorted(lambda x: len(x.predecessor_ids))
+            for _task in tasks:
+                task: HvacMrpTask = _task
+                task.update_price(opt)
+                if task.product_id and product_id_in_sale_oder_lines(task.product_id.id):
+                    total = total+task.price
+                #total = total+task.price
+
+            self.price = total
+            return self
+
+        def update_progress():
+            tasks = self.task_ids.sorted(lambda x: len(x.predecessor_ids))
+            total = 0
+            total_price = 0
+
+            for _task in tasks:
+                task: HvacMrpTask = _task
+                task.update_progress(opt)
+                if task.product_id and product_id_in_sale_oder_lines(task.product_id.id):
+                    total_price = total_price+task.price
+                    total = total + task.percent_complete * task.price
+            pct = 0
+            if total_price > 0:
+                pct = total/total_price
+
+            self.percent_complete = pct
+            return self
+
         revise_dates()
         revise_sale_oder = opt.revise_sale_order
         bom: HvacMrpBomExtensions = self.getProjectBom(recreate=False)
@@ -142,18 +196,26 @@ class HvacMrpProject(models.Model):
             process_move(move)
         if sale_oder:
             self.sale_order_id = sale_oder
+
+        if opt.update_progress or not self.price:
+            update_price()
+
+        if opt.update_progress:
+            update_progress()
+
+        if True or opt.reschedule:
+            tasks = self.task_ids.sorted(lambda x: len(x.predecessor_ids))
+            for _task in tasks:
+                task: HvacMrpTask = _task
+                task.recalculate(opt)
+
         if opt.reschedule:
             tasks = self.task_ids.sorted(lambda x: len(x.predecessor_ids))
             for _task in tasks:
-                task:HvacMrpTask = _task
+                task: HvacMrpTask = _task
                 task.reschedule(opt)
+
         reorder_by_date()
-
-            
-            
-
-
-
 
         return self
 
@@ -184,18 +246,17 @@ class HvacMrpProject(models.Model):
     def get_deadline__date(self, recompute=True):
         res = self.deadline
         if not res and recompute:
-            s:HvacSaleOrderExtensions = self.sale_order_id
+            s: HvacSaleOrderExtensions = self.sale_order_id
             if s:
                 res = s.date_order
         if not res and recompute:
             res = datetime.today()
         return res
 
-
     def get_planned_start_date(self, recompute=True):
         res = self.planned_start
         if not res and recompute:
-            s:HvacSaleOrderExtensions = self.sale_order_id
+            s: HvacSaleOrderExtensions = self.sale_order_id
             if s:
                 res = s.date_order
         if not res and recompute:
@@ -205,7 +266,7 @@ class HvacMrpProject(models.Model):
     def get_planned_finish_date(self, recompute=True):
         res = self.planned_finish
         if not res and recompute:
-            s:HvacSaleOrderExtensions = self.sale_order_id
+            s: HvacSaleOrderExtensions = self.sale_order_id
             if s:
                 res = s.date_order
         if not res and recompute:
@@ -217,13 +278,12 @@ class HvacMrpProject(models.Model):
         if not self.start and recompute:
             res = self.get_planned_start_date()
         return res
-    
+
     def get_finish_date(self, recompute=True):
         res = self.finish
         if not res and recompute:
             res = self.get_planned_finish_date()
         return res
-
 
     @api.onchange('code')
     def _on_code_changed(self):
@@ -364,7 +424,7 @@ class HvacMrpProject(models.Model):
                 print('MO for {0}'.format(production.product_id.display_name))
                 task: HvacMrpTask = self.task_ids.get_task_for_production(
                     production, self)
-                task.recalculate(options)
+                task.recalculate_deprecated(options)
 
                 for move in production.getRawComponentsMove():
                     process_move(move)
@@ -375,7 +435,7 @@ class HvacMrpProject(models.Model):
                 print('Purchase Line: {}'.format(purchase_line.name))
                 task: HvacMrpTask = self.task_ids.get_task_for_purchase(
                     purchase_line, self)
-                task.recalculate(options)
+                task.recalculate_deprecated(options)
 
             return True
 

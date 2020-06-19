@@ -20,6 +20,9 @@ class ReviseProjectWizard(models.TransientModel):
     replan= fields.Boolean(string="Replan",
         default= False,
         help="help")
+    update_progress = fields.Boolean(
+        
+    )
 
     status_date = fields.Date(
         string='Status Date',
