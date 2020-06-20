@@ -13,6 +13,7 @@ class AddProductWizard(models.TransientModel):
         "product.template",
         "Product",
         required=True,
+        domain="[('sale_ok' , '=' , True)]"
     )
     product_id = fields.Many2one(
         'product.product', 'Product Variant',

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2017 Jairo Llopis <jairo.llopis@tecnativa.com>
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="hvac_mrp_project_revise_wizard_form" model="ir.ui.view">
+        <field name="name">Recalculate Project Wizard</field>
+        <field name="model">hvac.mrp.project.revise.project.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <h4>
+                    This action will make a new revision of the project base on
+                    follwoing settings:
+                    </h4>
+                    <div>
+                        <field name="revise_sale_order"/>
+                        <strong>Revise Sale: </strong>
+                            Revises the sale order...
+                    </div>
+                    <div>
+                        <field name="revise_bom"/>
+                        <strong>Revise BoM: </strong>
+                            Creates a new revision for the project Bills of Materials 
+                            (including all sub-components) to keep previous bom as a 
+                            refernce record.
+                    </div>
+                    <div>
+                        <field name="reschedule"/>
+                        <strong>Reschdule Tasks: </strong>
+                            Reschedules Project Tasks so that the unfinished tasks are
+                            moved to future.
+                    </div>
+                    <div>
+                        <field name="update_progress"/>
+                        <strong>Update Progress: </strong>
+                        Recalculate project and tasks percent complete.
+                    </div>
+
+                    <div>
+                        <field name="replan"/>
+                        <strong>Replan: </strong>
+                            Saves current dates a planned dates so that a new baseline
+                            plan is created.
+                    </div>
+                    <div>
+                        <strong>Status Date: </strong>
+                        <field name="status_date"/>
+                            Date used as current date in task scheduling.
+                    </div>
+                    <div>
+                        <strong>Reason: </strong>
+                        <field name="reason"/>
+                            Reason for this revison.
+                    </div>
+                    <group>
+
+                    </group>
+                    <group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_revise" type="object" string="Revise" class="oe_highlight" />
+                    <button special="cancel" string="Cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="hvac_mrp_project_revise_wizard_action" model="ir.actions.act_window">
+        <field name="name">Revise Project</field>
+        <field name="res_model">hvac.mrp.project.revise.project.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

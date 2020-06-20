@@ -17,3 +17,6 @@ class HvacMrpProduction(MrpProduction):
 
     def getRawComponentsMove(self) -> HvacStockMove:
         return self.move_raw_ids
+    
+    def is_canceled(self)->bool:
+        return self.state == 'cancel'

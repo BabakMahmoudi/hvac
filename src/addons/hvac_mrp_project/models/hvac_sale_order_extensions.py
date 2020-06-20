@@ -1,4 +1,3 @@
-
 from odoo import models, fields, api
 from typing import TYPE_CHECKING,Any
 if TYPE_CHECKING:
@@ -71,7 +70,7 @@ class HvacSaleOrderExtensions(SaleOrder):
     #     return res
 
     def onSaleOrderStateChanged(self, val):
-        print('Sale Order State Changed: {}'.format(val))
+        # print('Sale Order State Changed: {}'.format(val))
         p:HvacMrpProject = self.project_id
         if p:
             p.onSaleOrderStatusChanged(self,val)
@@ -92,10 +91,3 @@ class HvacSaleOrderLineExtensions(SaleOrderLine):
         """ Hey """
         self.bom_id
         self.test
-
-
-
-
-
-    
-

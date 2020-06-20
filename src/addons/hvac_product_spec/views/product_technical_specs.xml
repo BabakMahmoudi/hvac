@@ -11,6 +11,8 @@
           <page string='Technical Specs'>
             <group>
               <group>
+                <field name='hvac_spec_computed_des' string="computed des"/>
+                <field name ='hvac_spec_manual_des' string="technical notes"/>
                 <field name='hvac_spec_type' string = 'Product Type'/>
               </group>
               <group/>
@@ -76,17 +78,17 @@
             </group>
             <group string = 'Exhaust Fan' attrs="{'invisible': [('hvac_spec_type', '!=', 'value4')]}">
               <group>
-              <field name='hvac_spec_exfan_model_number' string = 'Model Number'/>
-              <field name='hvac_spec_exfan_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
-              <field name='hvac_spec_exfan_diameter' string = 'Diameter'/>
-              <field name='hvac_spec_exfan_esp' string = 'ESP'/>
-              <field name='hvac_spec_exfan_blade_type' string = 'Blade Type'/>
+                <field name='hvac_spec_exfan_model_number' string = 'Model Number'/>
+                <field name='hvac_spec_exfan_electrical_supply_voltage' string = 'Electrical Supply Voltage '/>
+                <field name='hvac_spec_exfan_diameter' string = 'Diameter'/>
+                <field name='hvac_spec_exfan_esp' string = 'ESP'/>
+                <field name='hvac_spec_exfan_blade_type' string = 'Blade Type'/>
               </group>
               <group>
-              <field name='hvac_spec_exfan_cfm' string = 'CFM'/>
-              <field name='hvac_spec_exfan_hub_size' string = 'Hub Size'/>
-              <field name='hvac_spec_exfan_hub_serial_number' string = 'Hub Serial Number'/>
-              <field name='hvac_spec_exfan_number_of_blades' string = '# Of Blades'/>
+                <field name='hvac_spec_exfan_cfm' string = 'CFM'/>
+                <field name='hvac_spec_exfan_hub_size' string = 'Hub Size'/>
+                <field name='hvac_spec_exfan_hub_serial_number' string = 'Hub Serial Number'/>
+                <field name='hvac_spec_exfan_number_of_blades' string = '# Of Blades'/>
               </group>
             </group>
 
