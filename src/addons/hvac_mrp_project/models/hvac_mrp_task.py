@@ -38,7 +38,7 @@ MINIMUM_TASK_DURATION = 1
 class HvacMrpTask(models.Model):
     _name = 'hvac.mrp.task'
     _order = "sequence, start"
-    name = fields.Char()
+    name = fields.Char(string='Name')
     active = fields.Boolean(default=True)
     project_id = fields.Many2one("hvac.mrp.project")
     sequence = fields.Integer(string='Sequence', default=10)
@@ -53,14 +53,14 @@ class HvacMrpTask(models.Model):
         default='',
         String="Type")
 
-    manufacturing_order = fields.Many2one('mrp.production')
-    product_id = fields.Many2one('product.product')
-    stock_move_id = fields.Many2one('stock.move')
-    purchase = fields.Many2one("purchase.order.line")
-    planned_start = fields.Datetime()
-    planned_finish = fields.Datetime()
-    start = fields.Datetime()
-    finish = fields.Datetime()
+    manufacturing_order = fields.Many2one('mrp.production',string='Manufacturing Order')
+    product_id = fields.Many2one('product.product',string='Product')
+    stock_move_id = fields.Many2one('stock.move' , string='Stock Move')
+    purchase = fields.Many2one("purchase.order.line" , string="Purchase")
+    planned_start = fields.Datetime(string='Planned Start')
+    planned_finish = fields.Datetime(string='Planned Finish')
+    start = fields.Datetime(string='Start')
+    finish = fields.Datetime(string='Finish')
     deadline = fields.Datetime()
     duration = fields.Float()
     manual_duration = fields.Float()

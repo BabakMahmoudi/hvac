@@ -70,7 +70,7 @@ class HvacSaleOrderExtensions(SaleOrder):
     #     return res
 
     def onSaleOrderStateChanged(self, val):
-        print('Sale Order State Changed: {}'.format(val))
+        # print('Sale Order State Changed: {}'.format(val))
         p:HvacMrpProject = self.project_id
         if p:
             p.onSaleOrderStatusChanged(self,val)

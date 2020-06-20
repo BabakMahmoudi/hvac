@@ -34,6 +34,7 @@ else:
 class HvacMrpProject(models.Model):
     _name = "hvac.mrp.project"
     _description = 'Manufacturing Project'
+    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin', 'utm.mixin']
     numbers = [1, 2, 3]
     name = fields.Char("Name")
     code = fields.Char(string='Code', required=True, copy=False, readonly=False,
@@ -73,6 +74,33 @@ class HvacMrpProject(models.Model):
 
     )
     price = fields.Float()
+    state = fields.Selection([
+        ('draft', "Draft"),
+        ('confirmed', "Confirmed"),
+        ('done', "Done"),
+        ('cancel' , "Cancel")
+
+    ], default='draft')
+
+    def action_draft(self):
+        self.state = 'draft'
+        sale_order = self.getSaleOrder().copy()
+        self.getSaleOrder().action_cancel()
+        self.sale_order_id = sale_order
+          
+    def action_confirm(self):
+        self.state = 'confirmed'
+        self.getSaleOrder().action_confirm()
+        self.message_post(body="I Did this")
+        
+  
+    def action_done(self):
+        self.state = 'done'
+
+    def action_cancel(self):
+        self.state = 'cancel'
+        self.getSaleOrder().action_cancel()
+
 
     def revise(self, opt: ReviseProjectWizard):
         def get_moves() -> List[HvacStockMove]:

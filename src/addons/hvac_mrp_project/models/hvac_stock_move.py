@@ -28,7 +28,7 @@ class HvacStockMove(StockMove):
     @api.model_create_multi
     def create(self, vals_list):
         res = super(HvacStockMove, self).create(vals_list)
-        print('stock move create')
+        # print('stock move create')
         for val in vals_list:
             sale_order_line_id = val.get("sale_line_id", False)
             if sale_order_line_id:
@@ -42,7 +42,7 @@ class HvacStockMove(StockMove):
     
     def write(self, vals):
         res = super(HvacStockMove, self).write(vals)
-        print('stock move write')
+        # print('stock move write')
         return res
 
     def getCreatedProduction(self)->HvacMrpProduction:
@@ -57,7 +57,7 @@ class HvacStockMoveLine(StockMoveLine):
     @api.model_create_multi
     def create(self, vals_list):
         res = super(HvacStockMoveLine, self).create(vals_list)
-        print('stock move line create')
+        # print('stock move line create')
         # for l in self:
         #     sale_order_line:HvacSaleOrderLineExtensions = l.sale_line_id
         #     sale_order:HvacSaleOrderExtensions = sale_order_line.order_id

@@ -1,5 +1,30 @@
 <odoo>
   <data>
+    <record model="ir.ui.view" id="hvac_mrp_task_form_view">
+      <field name="name">task form view</field>
+      <field name="model">hvac.mrp.task</field>
+      <field name="arch" type="xml">
+        <form>
+          <group>
+            <group>
+              <field name="name"/>
+              <field name='product_id'/>
+              <field name='manufacturing_order'/>
+              <field name='stock_move_id'/>
+              <field name='purchase'/>
+            </group>
+            <group>
+              <field name='project_id'/>
+              <field name='start'/>
+              <field name='finish'/>
+              <field name='planned_start'/>
+              <field name='planned_finish'/>
+            </group>
+          </group>
+        </form>
+      </field>
+    </record>
+
 
     <record model="ir.ui.view" id="hvac_task_list">
       <field name="name">Project Tasks</field>
@@ -20,6 +45,30 @@
       </field>
     </record>
 
+   
+
+    
+    <record id="view_hvac_task_filter" model="ir.ui.view">
+      <field name="name">hvac.task.select</field>
+      <field name="model">hvac.mrp.task</field>
+      <field name="arch" type="xml">
+        <search string="Search tasks">
+          <!-- <field name="code" string="Bill of Materials" filter_domain="['|', ('code', 'ilike', self), ('product_tmpl_id', 'ilike', self)]"/>
+          <field name="product_tmpl_id" string="Product"/>
+          <field name="bom_line_ids" string="Component"/>
+          <filter string="Manufacturing" name="normal" domain="[('type', '=', 'normal')]"/>
+          <filter string="Kit" name="phantom" domain="[('type', '=', 'phantom')]"/> -->
+          <separator/>
+
+          <group expand="0" string="Group By...">
+            <filter string="Project" name="project" domain="[]" context="{'group_by': 'project_id'}"/>
+            <!-- <filter string='BoM Type' name="group_by_type" domain="[]" context="{'group_by' : 'type'}"/>
+            <filter string='Unit of Measure' name="default_unit_of_measure" domain="[]" context="{'group_by' : 'product_uom_id'}"/>
+            <filter string="Routing" name="routings" domain="[]" context="{'group_by': 'routing_id'}"/> -->
+          </group>
+        </search>
+      </field>
+    </record>
     <record id="view_mrp_tasks_gantt" model="ir.ui.view">
       <field name="name">mrp.tasks.gantt</field>
       <field name="model">hvac.mrp.task</field>
@@ -40,9 +89,11 @@
           <field name="parent_task"/>
           <templates>
             <div t-name="timeline-item">
-              <span t-esc="record.name"/> 
-              (<span  t-esc="record.percent_complete" />%)
-              <!-- t-field-options='{"widget": "progressbar" }'/> -->
+              <span t-esc="record.name"/>
+ 
+              (              <span t-esc="record.percent_complete" />
+%)
+                                                                                                                              <!-- t-field-options='{"widget": "progressbar" }'/> -->
               <!-- Assigned to: -->
               <!-- <span t-esc="record.user_id[1]"/> -->
             </div>
@@ -52,11 +103,21 @@
       </field>
     </record>
 
+    <record model="ir.actions.act_window" id="hvac_task_list_action_window">
+      <field name="name">Manufacturing Tasks</field>
+      <field name="res_model">hvac.mrp.task</field>
+      <field name="search_view_id" ref="view_hvac_task_filter"/>
+      <field name="context">{'search_default_project':True}</field>
+      <!-- <field name="context">{'order': 'start'}</field> -->
+      <!-- <field name="domain">[["project_id","=",active_id]]</field> -->
+      <field name="view_mode">tree,form</field>
+    </record>
+
     <record model="ir.actions.act_window" id="hvac_project_task_list_action_window">
       <field name="name">Manufacturing Tasks</field>
       <field name="res_model">hvac.mrp.task</field>
       <!-- <field name="context">{'search_default_product_tmpl_id': [active_id], 'default_product_tmpl_id': active_id, 'create': False}</field> -->
-      <field name="context">{'order': 'start'}</field>
+      <!-- <field name="context">{'order': 'start'}</field> -->
       <field name="domain">[["project_id","=",active_id]]</field>
       <field name="view_mode">timeline,tree,form</field>
     </record>
