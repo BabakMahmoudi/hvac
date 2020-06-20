@@ -122,7 +122,8 @@ class HvacMrpTask(models.Model):
         _PURCHASE_FACTOR = 0.00001
         if self.get_purchase_oder_line():
             res = self.price *_PURCHASE_FACTOR
-
+        if not res or res == 0:
+            res = 1.0
         return res
 
     def get_default_name(self):
