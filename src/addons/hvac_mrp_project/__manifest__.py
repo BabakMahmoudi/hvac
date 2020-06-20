@@ -35,7 +35,8 @@
         'wizards/revise_project_views.xml',
         'views/hvac_mrp_task_views.xml',
         'views/hvac_mrp_project_views.xml',
-        'report/mrp_report_bom_structure.xml'
+        'report/mrp_report_bom_structure.xml',
+        'views/product_technical_specs.xml'
     ],
     # only loaded in demonstration mode
     'qweb': ['static/src/xml/mrp.xml'],

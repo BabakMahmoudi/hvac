@@ -12,8 +12,8 @@ else:
 class technical_specs(ProductTemplate):
     _inherit = 'product.template'
 
-    hvac_spec_computed_des = fields.Text(compute="compute_description")
-    hvac_spec_manual_des = fields.Text()
+    # hvac_spec_computed_des = fields.Text(compute="compute_description")
+    # hvac_spec_manual_des = fields.Text()
     hvac_spec_type = fields.Selection([('value1', 'MAU'), ('value2', 'ENC'), (
         'value3', 'Door'), ('value4', 'Exhaust Fan'), ('value5', 'Control Panel')])
     
@@ -146,15 +146,15 @@ class technical_specs(ProductTemplate):
         self.hvac_spec_computed_des = res
         return res
 
-    @api.depends("hvac_spec_enc_dimension_length",
-        "hvac_spec_enc_dimension_width",
-        "hvac_spec_enc_dimension_height",
-        "hvac_spec_enc_dimension_internal_height",
-        "hvac_spec_enc_dimension_internal_width",
-        "hvac_spec_enc_dimension_internal_length",
-        "hvac_spec_door_overall_height",
-        "hvac_spec_door_oveall_width",
-        "hvac_spec_mau_type")
-    def compute_description(self):
-        self.hvac_spec_computed_des = self.get_description() 
+    # @api.depends("hvac_spec_enc_dimension_length",
+    #     "hvac_spec_enc_dimension_width",
+    #     "hvac_spec_enc_dimension_height",
+    #     "hvac_spec_enc_dimension_internal_height",
+    #     "hvac_spec_enc_dimension_internal_width",
+    #     "hvac_spec_enc_dimension_internal_length",
+    #     "hvac_spec_door_overall_height",
+    #     "hvac_spec_door_oveall_width",
+    #     "hvac_spec_mau_type")
+    # def compute_description(self):
+    #     self.hvac_spec_computed_des = self.get_description() 
         

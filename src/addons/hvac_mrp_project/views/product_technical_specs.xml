@@ -11,8 +11,8 @@
           <page string='Technical Specs'>
             <group>
               <group>
-                <field name='hvac_spec_computed_des' string="computed des"/>
-                <field name ='hvac_spec_manual_des' string="technical notes"/>
+                <!-- <field name='hvac_spec_computed_des' string="computed des"/> -->
+                <!-- <field name ='hvac_spec_manual_des' string="technical notes"/> -->
                 <field name='hvac_spec_type' string = 'Product Type'/>
               </group>
               <group/>

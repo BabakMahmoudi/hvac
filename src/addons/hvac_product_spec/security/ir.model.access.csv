@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hvac_product_spec_hvac_product_spec,hvac_product_spec.hvac_product_spec,model_hvac_product_spec_hvac_product_spec,base.group_user,1,1,1,1
